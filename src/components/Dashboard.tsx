@@ -18,10 +18,11 @@ interface DashboardProps {
   onEditBooking: (booking: Booking) => void;
   onSendReminder: (booking: Booking, type: '24h' | '1h') => void;
   onDeleteBooking: (id: string) => void;
+  onViewAll: () => void;
   user?: User | null;
 }
 
-export default function Dashboard({ bookings, pendingReminders, onEditBooking, onSendReminder, onDeleteBooking, user }: DashboardProps) {
+export default function Dashboard({ bookings, pendingReminders, onEditBooking, onSendReminder, onDeleteBooking, onViewAll, user }: DashboardProps) {
   const stats = {
     totalReserved: bookings.filter(b => b.status === 'active').length,
     availableTents: 3 - bookings.filter(b => b.status === 'active').length, // Total 3 tents
@@ -32,6 +33,10 @@ export default function Dashboard({ bookings, pendingReminders, onEditBooking, o
   const activeBookings = bookings
     .filter(b => b.status === 'active')
     .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+
+  const recentActivity = [...bookings]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 5);
 
   return (
     <div className="space-y-12">
@@ -124,7 +129,12 @@ export default function Dashboard({ bookings, pendingReminders, onEditBooking, o
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h3 className="text-2xl font-bold tracking-tight text-foreground">الحجوزات النشطة</h3>
-          <button className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">عرض الكل</button>
+          <button 
+            onClick={onViewAll}
+            className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+          >
+            عرض الكل
+          </button>
         </div>
 
         <div className="grid grid-cols-1 gap-4">
@@ -142,6 +152,49 @@ export default function Dashboard({ bookings, pendingReminders, onEditBooking, o
               <p className="text-muted-foreground font-medium">لا توجد حجوزات نشطة حالياً</p>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Recent Activity Section */}
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 text-primary rounded-lg">
+            <TrendingUp size={20} />
+          </div>
+          <h3 className="text-2xl font-bold tracking-tight text-foreground">آخر النشاطات</h3>
+        </div>
+        
+        <div className="bg-card rounded-[2.5rem] border border-border overflow-hidden shadow-xl shadow-black/5">
+          <div className="divide-y divide-border">
+            {recentActivity.length > 0 ? (
+              recentActivity.map((booking) => (
+                <div key={booking.id} className="p-6 flex items-center justify-between hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className={cn(
+                      "w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs",
+                      booking.status === 'active' ? "bg-emerald-100 text-emerald-700" : "bg-muted text-muted-foreground"
+                    )}>
+                      {booking.tentId}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-foreground text-sm">{booking.customerName}</h4>
+                      <p className="text-[10px] text-muted-foreground font-medium">
+                        {booking.status === 'active' ? 'حجز جديد' : 'حجز مكتمل'} • {format(new Date(booking.createdAt), 'd MMM HH:mm', { locale: ar })}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-foreground">{booking.totalPrice.toLocaleString()} د.ج</p>
+                    <p className="text-[10px] text-muted-foreground font-medium">الموقع: {booking.location}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="p-12 text-center">
+                <p className="text-muted-foreground font-medium">لا توجد نشاطات حديثة</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

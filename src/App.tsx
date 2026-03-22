@@ -191,6 +191,7 @@ export default function App() {
       setShowBookingForm(false);
       setEditingBooking(null);
       setActiveTab('dashboard');
+      setSuccessMessage(editingBooking ? 'تم تحديث الحجز بنجاح.' : 'تم إضافة الحجز بنجاح.');
     } catch (error) {
       console.error("Error saving booking:", error);
       handleFirestoreError(error, OperationType.WRITE, 'bookings');
@@ -277,6 +278,7 @@ export default function App() {
           onEditBooking={handleEditBooking} 
           onSendReminder={handleSendReminder}
           onDeleteBooking={handleDeleteBooking}
+          onViewAll={() => setActiveTab('bookings')}
           user={user}
         />
       )}
