@@ -199,26 +199,64 @@ export default function BookingForm({ booking, customers, onSave, onClose }: Boo
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-[#1A1A1A]/60">السعر الإجمالي</label>
-                <input
-                  required
-                  type="number"
-                  value={formData.totalPrice}
-                  onChange={e => setFormData({ ...formData, totalPrice: Number(e.target.value) })}
-                  className="w-full px-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-bold"
-                />
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-[#1A1A1A]/60">السعر الإجمالي</label>
+                  <input
+                    required
+                    type="number"
+                    value={formData.totalPrice}
+                    onChange={e => setFormData({ ...formData, totalPrice: Number(e.target.value) })}
+                    className="w-full px-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-bold"
+                  />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {[1600, 1800, 2000, 2600, 400].map(price => (
+                    <button
+                      key={price}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, totalPrice: price })}
+                      className={cn(
+                        "px-3 py-1.5 rounded-xl text-xs font-bold transition-all border",
+                        formData.totalPrice === price 
+                          ? "bg-[#1A1A1A] text-white border-[#1A1A1A]" 
+                          : "bg-white text-[#1A1A1A]/60 border-[#1A1A1A]/10 hover:border-[#1A1A1A]/30"
+                      )}
+                    >
+                      {price}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-[#1A1A1A]/60">العربون المدفوع</label>
-                <input
-                  required
-                  type="number"
-                  value={formData.deposit}
-                  onChange={e => setFormData({ ...formData, deposit: Number(e.target.value) })}
-                  className="w-full px-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-bold"
-                />
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-[#1A1A1A]/60">العربون المدفوع</label>
+                  <input
+                    required
+                    type="number"
+                    value={formData.deposit}
+                    onChange={e => setFormData({ ...formData, deposit: Number(e.target.value) })}
+                    className="w-full px-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-bold"
+                  />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {[400, 500, 1000].map(amount => (
+                    <button
+                      key={amount}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, deposit: amount })}
+                      className={cn(
+                        "px-3 py-1.5 rounded-xl text-xs font-bold transition-all border",
+                        formData.deposit === amount 
+                          ? "bg-[#1A1A1A] text-white border-[#1A1A1A]" 
+                          : "bg-white text-[#1A1A1A]/60 border-[#1A1A1A]/10 hover:border-[#1A1A1A]/30"
+                      )}
+                    >
+                      {amount}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="space-y-2">
