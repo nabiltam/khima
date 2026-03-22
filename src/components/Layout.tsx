@@ -4,7 +4,7 @@
  */
 
 import React, { ReactNode } from 'react';
-import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Settings, LogOut, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { User } from 'firebase/auth';
@@ -25,6 +25,7 @@ export default function Layout({ children, activeTab, setActiveTab, user, onSign
     { id: 'customers', label: 'سجل الزبائن', icon: Users },
     { id: 'bookings', label: 'الحجوزات', icon: Search },
     { id: 'settings', label: 'الإعدادات', icon: Settings },
+    { id: 'shams', label: 'شمس', icon: Heart },
   ];
 
   return (
@@ -70,10 +71,20 @@ export default function Layout({ children, activeTab, setActiveTab, user, onSign
           {user && (
             <div className="absolute bottom-0 left-0 right-0 p-8 border-t border-[#1A1A1A]/5 space-y-4">
               <div className="flex items-center gap-3">
-                <img src={user.photoURL || ''} className="w-10 h-10 rounded-xl" alt={user.displayName || ''} />
+                {user.photoURL ? (
+                  <img src={user.photoURL} className="w-10 h-10 rounded-xl" alt={user.displayName || ''} />
+                ) : (
+                  <div className="w-10 h-10 bg-[#1A1A1A] text-white rounded-xl flex items-center justify-center font-bold">
+                    {user.displayName?.charAt(0) || user.email?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                )}
                 <div className="overflow-hidden">
-                  <p className="text-sm font-bold text-[#1A1A1A] truncate">{user.displayName}</p>
-                  <p className="text-[10px] text-[#1A1A1A]/40 truncate">{user.email}</p>
+                  <p className="text-sm font-bold text-[#1A1A1A] truncate">
+                    {user.displayName || 'مستخدم'}
+                  </p>
+                  <p className="text-[10px] text-[#1A1A1A]/40 truncate">
+                    {user.email || 'بدون بريد'}
+                  </p>
                 </div>
               </div>
               <button 

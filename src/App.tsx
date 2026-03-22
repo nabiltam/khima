@@ -9,11 +9,11 @@ import Dashboard from './components/Dashboard';
 import BookingForm from './components/BookingForm';
 import CustomerDirectory from './components/CustomerDirectory';
 import Modal from './components/Modal';
-import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Trash2, LogIn, LogOut, CheckCircle2, AlertCircle } from 'lucide-react';
+import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Trash2, LogIn, LogOut, CheckCircle2, AlertCircle, Heart, Star } from 'lucide-react';
 import { Booking, Customer } from './types';
 import { cn } from './lib/utils';
 import { differenceInHours, parseISO, isBefore, addHours } from 'date-fns';
-import { db, auth, signIn, signOut, handleFirestoreError, OperationType } from './firebase';
+import { db, auth, signInWithGoogle, signInWithEmail, signUpWithEmail, signOut, handleFirestoreError, OperationType } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, updateDoc, getDocs } from 'firebase/firestore';
 
@@ -52,6 +52,10 @@ export default function App() {
   const [customerToDelete, setCustomerToDelete] = useState<string | null>(null);
   const [showMassDeleteConfirm, setShowMassDeleteConfirm] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   // Auth listener
   useEffect(() => {
@@ -64,11 +68,7 @@ export default function App() {
 
   // Firestore listeners
   useEffect(() => {
-    if (!user) {
-      setBookings([]);
-      setCustomers([]);
-      return;
-    }
+    if (!user) return;
 
     const bookingsQuery = query(collection(db, 'bookings'), orderBy('createdAt', 'desc'));
     const unsubscribeBookings = onSnapshot(bookingsQuery, (snapshot) => {
@@ -223,6 +223,29 @@ export default function App() {
 
   const filteredTotalRevenue = filteredBookings.reduce((sum, b) => sum + b.totalPrice, 0);
 
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    try {
+      if (isSignUp) {
+        await signUpWithEmail(email, password);
+      } else {
+        await signInWithEmail(email, password);
+      }
+    } catch (error: any) {
+      console.error("Auth error:", error);
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        setAuthError('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+      } else if (error.code === 'auth/email-already-in-use') {
+        setAuthError('هذا البريد الإلكتروني مستخدم بالفعل.');
+      } else if (error.code === 'auth/weak-password') {
+        setAuthError('كلمة المرور ضعيفة جداً.');
+      } else {
+        setAuthError('حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة لاحقاً.');
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
@@ -233,21 +256,80 @@ export default function App() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center p-6 text-right" dir="rtl">
+      <div className="min-h-screen bg-[#FDFCFB] flex items-center justify-center p-6 text-right" dir="rtl">
         <div className="bg-white p-12 rounded-[3rem] border border-[#1A1A1A]/5 max-w-md w-full shadow-2xl space-y-8">
           <div className="space-y-4 text-center">
             <div className="w-20 h-20 bg-[#1A1A1A] text-white rounded-3xl flex items-center justify-center mx-auto shadow-xl shadow-[#1A1A1A]/20">
               <LogIn size={40} />
             </div>
-            <h2 className="text-4xl font-bold text-[#1A1A1A] tracking-tight">تسجيل الدخول</h2>
-            <p className="text-[#1A1A1A]/60 font-medium">يرجى تسجيل الدخول للوصول إلى نظام إدارة الخيام</p>
+            <h2 className="text-4xl font-bold text-[#1A1A1A] tracking-tight">
+              {isSignUp ? 'إنشاء حساب' : 'تسجيل الدخول'}
+            </h2>
+            <p className="text-[#1A1A1A]/60 font-medium">
+              {isSignUp ? 'أدخل بياناتك لإنشاء حساب جديد' : 'يرجى تسجيل الدخول للوصول إلى النظام'}
+            </p>
           </div>
+
+          <form onSubmit={handleEmailAuth} className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-[#1A1A1A]/60 mr-2">البريد الإلكتروني</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="example@email.com"
+                required
+                className="w-full px-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-medium"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-[#1A1A1A]/60 mr-2">كلمة المرور</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                className="w-full px-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-medium"
+              />
+            </div>
+
+            {authError && (
+              <p className="text-red-500 text-sm font-bold text-center">{authError}</p>
+            )}
+
+            <button
+              type="submit"
+              className="w-full py-5 bg-[#1A1A1A] text-white rounded-2xl font-bold hover:bg-[#1A1A1A]/90 transition-all shadow-xl shadow-[#1A1A1A]/20"
+            >
+              {isSignUp ? 'إنشاء الحساب' : 'دخول'}
+            </button>
+          </form>
+
+          <div className="text-center">
+            <button 
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="text-sm font-bold text-[#1A1A1A]/60 hover:text-[#1A1A1A] transition-colors"
+            >
+              {isSignUp ? 'لديك حساب بالفعل؟ سجل دخولك' : 'ليس لديك حساب؟ أنشئ حساباً جديداً'}
+            </button>
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-[#1A1A1A]/10"></div>
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-4 text-[#1A1A1A]/40 font-bold">أو</span>
+            </div>
+          </div>
+
           <button
-            onClick={signIn}
-            className="w-full py-5 bg-[#1A1A1A] text-white rounded-2xl font-bold hover:bg-[#1A1A1A]/90 transition-all shadow-xl shadow-[#1A1A1A]/20 flex items-center justify-center gap-3"
+            onClick={signInWithGoogle}
+            className="w-full py-4 bg-white border border-[#1A1A1A]/10 text-[#1A1A1A] rounded-2xl font-bold hover:bg-[#1A1A1A]/5 transition-all flex items-center justify-center gap-3"
           >
             <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
-            تسجيل الدخول باستخدام Google
+            الدخول عبر Google
           </button>
         </div>
       </div>
@@ -274,6 +356,7 @@ export default function App() {
           onEditBooking={handleEditBooking} 
           onSendReminder={handleSendReminder}
           onDeleteBooking={handleDeleteBooking}
+          user={user}
         />
       )}
       
@@ -419,10 +502,20 @@ export default function App() {
             <div className="space-y-4">
               <h3 className="text-xl font-bold text-[#1A1A1A]">الحساب</h3>
               <div className="flex items-center gap-4 p-4 bg-[#1A1A1A]/5 rounded-2xl">
-                <img src={user.photoURL || ''} className="w-12 h-12 rounded-xl" alt={user.displayName || ''} />
+                {user.photoURL ? (
+                  <img src={user.photoURL} className="w-12 h-12 rounded-xl" alt={user.displayName || ''} />
+                ) : (
+                  <div className="w-12 h-12 bg-[#1A1A1A] text-white rounded-xl flex items-center justify-center font-bold text-xl">
+                    {user.displayName?.charAt(0) || user.email?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                )}
                 <div>
-                  <p className="font-bold text-[#1A1A1A]">{user.displayName}</p>
-                  <p className="text-sm text-[#1A1A1A]/40">{user.email}</p>
+                  <p className="font-bold text-[#1A1A1A]">
+                    {user.displayName || 'مستخدم'}
+                  </p>
+                  <p className="text-sm text-[#1A1A1A]/40">
+                    {user.email || 'بدون بريد'}
+                  </p>
                 </div>
               </div>
               <button 
@@ -443,6 +536,45 @@ export default function App() {
               >
                 مسح جميع البيانات
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'shams' && (
+        <div className="space-y-12">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-4xl font-bold tracking-tight text-[#1A1A1A]">شمس</h2>
+            <p className="text-[#1A1A1A]/60 font-medium">رسالة شكر وتقدير</p>
+          </div>
+
+          <div className="bg-white p-12 rounded-[3rem] border border-[#1A1A1A]/5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-12 opacity-5">
+              <Heart size={200} fill="currentColor" />
+            </div>
+            
+            <div className="relative z-10 space-y-8 text-center">
+              <div className="w-24 h-24 bg-pink-100 text-pink-600 rounded-[2rem] flex items-center justify-center mx-auto shadow-xl shadow-pink-500/20">
+                <Heart size={48} fill="currentColor" />
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-3xl font-bold text-[#1A1A1A]">شكراً لكِ يا شمس</h3>
+                <div className="max-w-2xl mx-auto">
+                  <p className="text-xl text-[#1A1A1A]/70 leading-relaxed font-medium">
+                    إلى مديرة أعمالي الرائعة "شمس"، أود أن أعبر عن خالص شكري وامتناني لمجهوداتكِ العظيمة في تنظيم الخيام ودعمكِ المستمر لي.
+                  </p>
+                  <p className="text-xl text-[#1A1A1A]/70 leading-relaxed font-medium mt-4">
+                    بفضلكِ أصبح العمل أكثر تنظيماً وسهولة. حفظكِ الله ورعاكِ يا جميلتي.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-center gap-4">
+                {[1, 2, 3].map((i) => (
+                  <Star key={i} size={24} className="text-amber-400" fill="currentColor" />
+                ))}
+              </div>
             </div>
           </div>
         </div>

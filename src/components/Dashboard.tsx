@@ -10,15 +10,18 @@ import { ar } from 'date-fns/locale';
 import { Booking } from '../types';
 import { cn } from '../lib/utils';
 
+import { User } from 'firebase/auth';
+
 interface DashboardProps {
   bookings: Booking[];
   pendingReminders: Array<{ booking: Booking, type: '24h' | '1h' }>;
   onEditBooking: (booking: Booking) => void;
   onSendReminder: (booking: Booking, type: '24h' | '1h') => void;
   onDeleteBooking: (id: string) => void;
+  user?: User | null;
 }
 
-export default function Dashboard({ bookings, pendingReminders, onEditBooking, onSendReminder, onDeleteBooking }: DashboardProps) {
+export default function Dashboard({ bookings, pendingReminders, onEditBooking, onSendReminder, onDeleteBooking, user }: DashboardProps) {
   const stats = {
     totalReserved: bookings.filter(b => b.status === 'active').length,
     availableTents: 3 - bookings.filter(b => b.status === 'active').length, // Total 3 tents

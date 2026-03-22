@@ -92,17 +92,11 @@ service cloud.firestore {
     }
 
     match /customers/{customerId} {
-      allow read: if isAdmin();
-      allow create: if isAdmin() && hasRequiredFields(['id', 'name', 'phone']) && isValidCustomer(request.resource.data);
-      allow update: if isAdmin() && isValidCustomer(request.resource.data);
-      allow delete: if isAdmin();
+      allow read, write: if isAuthenticated();
     }
 
     match /bookings/{bookingId} {
-      allow read: if isAdmin();
-      allow create: if isAdmin() && hasRequiredFields(['id', 'tentId', 'tentSize', 'location', 'customerId', 'customerName', 'customerPhone', 'totalPrice', 'deposit', 'remaining', 'startDate', 'endDate', 'pickupTime', 'status', 'createdAt']) && isValidBooking(request.resource.data);
-      allow update: if isAdmin() && isValidBooking(request.resource.data);
-      allow delete: if isAdmin();
+      allow read, write: if isAuthenticated();
     }
 
     // Default deny
