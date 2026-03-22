@@ -141,34 +141,58 @@ export default function App() {
   };
 
   const handleSaveBooking = async (bookingData: Partial<Booking>) => {
+    if (!user) {
+      alert("يرجى الانتظار حتى يتم تسجيل الدخول...");
+      return;
+    }
+
     try {
       if (editingBooking) {
         const bookingRef = doc(db, 'bookings', editingBooking.id);
-        await setDoc(bookingRef, { ...editingBooking, ...bookingData }, { merge: true });
-      } else {
-        const id = Math.random().toString(36).substr(2, 9);
-        const newBooking: Booking = {
+        const updatedData = {
+          ...editingBooking,
           ...bookingData,
-          id,
-          createdAt: new Date().toISOString(),
-        } as Booking;
+          updatedAt: new Date().toISOString()
+        };
+        await setDoc(bookingRef, updatedData, { merge: true });
+      } else {
+        // Find or create customer
+        let customerId = bookingData.customerId;
+        const existingCustomer = customers.find(c => c.phone === bookingData.customerPhone);
         
-        await setDoc(doc(db, 'bookings', id), newBooking);
-        
-        // Add customer if new
-        if (!customers.find(c => c.phone === newBooking.customerPhone)) {
-          const customerId = Math.random().toString(36).substr(2, 9);
-          await setDoc(doc(db, 'customers', customerId), {
+        if (existingCustomer) {
+          customerId = existingCustomer.id;
+        } else {
+          // Create new customer
+          const customerRef = doc(collection(db, 'customers'));
+          customerId = customerRef.id;
+          await setDoc(customerRef, {
             id: customerId,
-            name: newBooking.customerName,
-            phone: newBooking.customerPhone
+            name: bookingData.customerName,
+            phone: bookingData.customerPhone,
+            lastBookingDate: new Date().toISOString()
           });
         }
+
+        // Create new booking
+        const bookingRef = doc(collection(db, 'bookings'));
+        const newBooking: Booking = {
+          ...bookingData,
+          id: bookingRef.id,
+          customerId: customerId,
+          createdAt: new Date().toISOString(),
+          status: bookingData.status || 'active',
+          reminder24hSent: false,
+          reminder1hSent: false
+        } as Booking;
+        
+        await setDoc(bookingRef, newBooking);
       }
       setShowBookingForm(false);
       setEditingBooking(null);
       setActiveTab('dashboard');
     } catch (error) {
+      console.error("Error saving booking:", error);
       handleFirestoreError(error, OperationType.WRITE, 'bookings');
     }
   };

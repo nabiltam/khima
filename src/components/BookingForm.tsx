@@ -11,7 +11,7 @@ import { cn } from '../lib/utils';
 interface BookingFormProps {
   booking?: Booking | null;
   customers: Customer[];
-  onSave: (booking: Partial<Booking>) => void;
+  onSave: (booking: Partial<Booking>) => Promise<void>;
   onClose: () => void;
 }
 
@@ -31,6 +31,7 @@ const LOCATIONS = [
 ];
 
 export default function BookingForm({ booking, customers, onSave, onClose }: BookingFormProps) {
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState<Partial<Booking>>({
     tentId: '',
     tentSize: '12/12',
@@ -59,16 +60,37 @@ export default function BookingForm({ booking, customers, onSave, onClose }: Boo
   }, [formData.totalPrice, formData.deposit]);
 
   const handlePhoneChange = (phone: string) => {
-    setFormData(prev => ({ ...prev, customerPhone: phone }));
-    const existingCustomer = customers.find(c => c.phone === phone);
-    if (existingCustomer) {
-      setFormData(prev => ({ ...prev, customerName: existingCustomer.name, customerId: existingCustomer.id }));
-    }
+    setFormData(prev => {
+      const existingCustomer = customers.find(c => c.phone === phone);
+      if (existingCustomer) {
+        return { 
+          ...prev, 
+          customerPhone: phone, 
+          customerName: existingCustomer.name, 
+          customerId: existingCustomer.id 
+        };
+      } else {
+        // Clear customerId if phone doesn't match an existing customer
+        const newData = { ...prev, customerPhone: phone };
+        delete newData.customerId;
+        return newData;
+      }
+    });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    if (isSaving) return;
+    
+    setIsSaving(true);
+    try {
+      await onSave(formData);
+    } catch (error) {
+      console.error("Form save error:", error);
+      // Error is handled by App.tsx handleFirestoreError
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -326,10 +348,18 @@ export default function BookingForm({ booking, customers, onSave, onClose }: Boo
             </button>
             <button
               type="submit"
-              className="px-12 py-4 bg-primary text-primary-foreground rounded-2xl font-bold shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-3"
+              disabled={isSaving}
+              className={cn(
+                "px-12 py-4 bg-primary text-primary-foreground rounded-2xl font-bold shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-3",
+                isSaving && "opacity-50 cursor-not-allowed"
+              )}
             >
-              <Save size={20} />
-              حفظ الحجز
+              {isSaving ? (
+                <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Save size={20} />
+              )}
+              {isSaving ? 'جاري الحفظ...' : 'حفظ الحجز'}
             </button>
           </div>
         </form>
