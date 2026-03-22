@@ -45,13 +45,8 @@ export default function Dashboard({ bookings, pendingReminders, onEditBooking, o
             {user?.isAnonymous ? 'حفظكِ الله ورعاكِ يا جميلتي، إليكِ حالة الحجوزات اليوم' : 'نظرة عامة على حالة الحجوزات اليوم'}
           </p>
         </div>
-        <div className="w-20 h-20 bg-card rounded-2xl overflow-hidden shadow-lg shadow-black/5 hidden md:block border border-border">
-          <img 
-            src="https://picsum.photos/seed/artitam/300/300" 
-            alt="Logo" 
-            className="w-full h-full object-cover"
-            referrerPolicy="no-referrer"
-          />
+        <div className="w-20 h-20 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20 hidden md:block border border-border">
+          <Tent size={40} />
         </div>
       </div>
 

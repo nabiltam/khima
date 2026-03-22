@@ -4,7 +4,7 @@
  */
 
 import React, { ReactNode } from 'react';
-import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Settings, Heart } from 'lucide-react';
+import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Settings, Heart, Tent } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { User } from 'firebase/auth';
@@ -32,13 +32,8 @@ export default function Layout({ children, activeTab, setActiveTab, user }: Layo
       {/* Mobile Header */}
       <header className="lg:hidden flex items-center justify-between p-4 border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-muted rounded-xl flex items-center justify-center overflow-hidden border border-border">
-            <img 
-              src="https://picsum.photos/seed/artitam/200/200" 
-              alt="Logo" 
-              className="w-full h-full object-cover"
-              referrerPolicy="no-referrer"
-            />
+          <div className="w-10 h-10 bg-primary text-primary-foreground rounded-xl flex items-center justify-center border border-border">
+            <Tent size={24} />
           </div>
           <h1 className="text-xl font-bold tracking-tight text-foreground">أرتي تام</h1>
         </div>
@@ -55,13 +50,8 @@ export default function Layout({ children, activeTab, setActiveTab, user }: Layo
         )}>
           <div className="p-8">
             <div className="flex flex-col items-center gap-4 mb-12">
-              <div className="w-24 h-24 bg-background rounded-3xl flex items-center justify-center overflow-hidden shadow-xl shadow-black/5 border border-border">
-                <img 
-                  src="https://picsum.photos/seed/artitam/400/400" 
-                  alt="Arti Tam Logo" 
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
+              <div className="w-24 h-24 bg-primary text-primary-foreground rounded-3xl flex items-center justify-center shadow-xl shadow-primary/20 border border-border">
+                <Tent size={48} />
               </div>
               <div className="text-center">
                 <h1 className="text-2xl font-bold tracking-tighter text-foreground">أرتي تام</h1>
