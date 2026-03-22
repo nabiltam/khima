@@ -1,1 +1,21 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #E11D48;
+  --color-primary-foreground: #FFFFFF;
+  --color-background: #FFFFFF;
+  --color-foreground: #1A1A1A;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #1A1A1A;
+  --color-border: #E5E7EB;
+  --color-muted: #F8F9FA;
+  --color-muted-foreground: #6B7280;
+  --color-accent: #E11D48;
+  --color-accent-foreground: #FFFFFF;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+  }
+}

@@ -36,13 +36,23 @@ export default function Dashboard({ bookings, pendingReminders, onEditBooking, o
   return (
     <div className="space-y-12">
       {/* Header */}
-      <div className="flex flex-col gap-2">
-        <h2 className="text-4xl font-bold tracking-tight text-[#1A1A1A]">
-          {user?.isAnonymous ? 'مرحباً يا مديرة أعمالي شمس' : 'لوحة التحكم'}
-        </h2>
-        <p className="text-[#1A1A1A]/60 font-medium">
-          {user?.isAnonymous ? 'حفظكِ الله ورعاكِ يا جميلتي، إليكِ حالة الحجوزات اليوم' : 'نظرة عامة على حالة الحجوزات اليوم'}
-        </p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex flex-col gap-2">
+          <h2 className="text-4xl font-bold tracking-tight text-foreground">
+            {user?.isAnonymous ? 'مرحباً يا مديرة أعمالي شمس' : 'لوحة التحكم'}
+          </h2>
+          <p className="text-muted-foreground font-medium">
+            {user?.isAnonymous ? 'حفظكِ الله ورعاكِ يا جميلتي، إليكِ حالة الحجوزات اليوم' : 'نظرة عامة على حالة الحجوزات اليوم'}
+          </p>
+        </div>
+        <div className="w-20 h-20 bg-card rounded-2xl overflow-hidden shadow-lg shadow-black/5 hidden md:block border border-border">
+          <img 
+            src="https://picsum.photos/seed/artitam/300/300" 
+            alt="Logo" 
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -52,28 +62,28 @@ export default function Dashboard({ bookings, pendingReminders, onEditBooking, o
           value={stats.totalReserved} 
           icon={Tent} 
           trend="الحالة الحالية"
-          color="bg-[#1A1A1A] text-white"
+          color="bg-primary text-primary-foreground"
         />
         <StatCard 
           label="الخيام المتاحة" 
           value={stats.availableTents} 
           icon={TrendingUp} 
           trend="من أصل 3"
-          color="bg-white border border-[#1A1A1A]/5"
+          color="bg-card border border-border"
         />
         <StatCard 
           label="إجمالي الإيرادات" 
           value={`${stats.totalRevenue.toLocaleString()} د.ج`} 
           icon={DollarSign} 
           trend="+12% هذا الشهر"
-          color="bg-white border border-[#1A1A1A]/5"
+          color="bg-card border border-border"
         />
         <StatCard 
           label="المبالغ المتبقية" 
           value={`${stats.pendingPayments.toLocaleString()} د.ج`} 
           icon={Users} 
           trend="تحصيل 92%"
-          color="bg-white border border-[#1A1A1A]/5"
+          color="bg-card border border-border"
         />
       </div>
 
@@ -84,22 +94,22 @@ export default function Dashboard({ bookings, pendingReminders, onEditBooking, o
             <div className="p-2 bg-red-500 text-white rounded-lg animate-pulse">
               <Bell size={18} />
             </div>
-            <h3 className="text-2xl font-bold tracking-tight text-[#1A1A1A]">تذكيرات معلقة ({pendingReminders.length})</h3>
+            <h3 className="text-2xl font-bold tracking-tight text-foreground">تذكيرات معلقة ({pendingReminders.length})</h3>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {pendingReminders.map(({ booking, type }) => (
               <div 
                 key={`${booking.id}-${type}`}
-                className="bg-white p-6 rounded-3xl border-2 border-red-500/20 flex items-center justify-between gap-4 shadow-lg shadow-red-500/5"
+                className="bg-card p-6 rounded-3xl border-2 border-red-500/20 flex items-center justify-between gap-4 shadow-lg shadow-red-500/5"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center font-bold">
+                  <div className="w-12 h-12 bg-red-500/10 text-red-500 rounded-xl flex items-center justify-center font-bold">
                     {type === '24h' ? '24h' : '1h'}
                   </div>
                   <div>
-                    <h4 className="font-bold text-[#1A1A1A]">{booking.customerName}</h4>
-                    <p className="text-xs font-medium text-[#1A1A1A]/40">خيمة {booking.tentId} • {booking.pickupTime}</p>
+                    <h4 className="font-bold text-foreground">{booking.customerName}</h4>
+                    <p className="text-xs font-medium text-muted-foreground">خيمة {booking.tentId} • {booking.pickupTime}</p>
                   </div>
                 </div>
                 <button 
@@ -118,8 +128,8 @@ export default function Dashboard({ bookings, pendingReminders, onEditBooking, o
       {/* Active Bookings List */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-bold tracking-tight text-[#1A1A1A]">الحجوزات النشطة</h3>
-          <button className="text-sm font-semibold text-[#1A1A1A]/60 hover:text-[#1A1A1A] transition-colors">عرض الكل</button>
+          <h3 className="text-2xl font-bold tracking-tight text-foreground">الحجوزات النشطة</h3>
+          <button className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">عرض الكل</button>
         </div>
 
         <div className="grid grid-cols-1 gap-4">
@@ -133,8 +143,8 @@ export default function Dashboard({ bookings, pendingReminders, onEditBooking, o
               />
             ))
           ) : (
-            <div className="p-12 text-center border-2 border-dashed border-[#1A1A1A]/10 rounded-3xl">
-              <p className="text-[#1A1A1A]/40 font-medium">لا توجد حجوزات نشطة حالياً</p>
+            <div className="p-12 text-center border-2 border-dashed border-border rounded-3xl">
+              <p className="text-muted-foreground font-medium">لا توجد حجوزات نشطة حالياً</p>
             </div>
           )}
         </div>
@@ -147,7 +157,7 @@ function StatCard({ label, value, icon: Icon, trend, color }: any) {
   return (
     <div className={cn("p-8 rounded-[2rem] flex flex-col gap-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-1", color)}>
       <div className="flex items-center justify-between">
-        <div className={cn("p-3 rounded-2xl", color.includes('bg-[#1A1A1A]') ? "bg-white/10" : "bg-[#1A1A1A]/5")}>
+        <div className={cn("p-3 rounded-2xl", color.includes('bg-primary') ? "bg-white/10" : "bg-muted")}>
           <Icon size={24} />
         </div>
         <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">{trend}</span>
@@ -171,15 +181,15 @@ function BookingCard({ booking, onClick, onDelete }: BookingCardProps) {
   return (
     <div 
       onClick={onClick}
-      className="group bg-white p-6 rounded-[2rem] border border-[#1A1A1A]/5 hover:border-[#1A1A1A]/20 hover:shadow-2xl transition-all duration-500 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-6"
+      className="group bg-card p-6 rounded-[2rem] border border-border hover:border-primary/30 hover:shadow-xl hover:shadow-black/5 transition-all duration-500 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-6"
     >
       <div className="flex items-center gap-6">
-        <div className="w-16 h-16 bg-[#1A1A1A]/5 rounded-2xl flex items-center justify-center text-2xl font-bold text-[#1A1A1A]">
+        <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center text-2xl font-bold text-primary">
           {booking.tentId}
         </div>
         <div className="space-y-1">
-          <h4 className="text-xl font-bold tracking-tight text-[#1A1A1A] group-hover:translate-x-1 transition-transform duration-300">{booking.customerName}</h4>
-          <div className="flex items-center gap-4 text-sm text-[#1A1A1A]/60 font-medium">
+          <h4 className="text-xl font-bold tracking-tight text-foreground group-hover:translate-x-1 transition-transform duration-300">{booking.customerName}</h4>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground font-medium">
             <span className="flex items-center gap-1.5"><MapPin size={14} /> {booking.location}</span>
             <span className="flex items-center gap-1.5"><Tent size={14} /> {booking.tentSize}</span>
           </div>
@@ -188,15 +198,15 @@ function BookingCard({ booking, onClick, onDelete }: BookingCardProps) {
 
       <div className="flex flex-wrap items-center gap-8">
         <div className="space-y-1">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[#1A1A1A]/40">التاريخ</p>
-          <div className="flex items-center gap-2 text-sm font-bold text-[#1A1A1A]">
-            <Calendar size={14} className="text-[#1A1A1A]/40" />
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">التاريخ</p>
+          <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+            <Calendar size={14} className="text-primary" />
             {format(new Date(booking.startDate), 'd MMM', { locale: ar })}
           </div>
         </div>
 
         <div className="space-y-1">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[#1A1A1A]/40">المبلغ المتبقي</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">المبلغ المتبقي</p>
           <p className={cn("text-sm font-bold", booking.remaining > 0 ? "text-red-500" : "text-emerald-500")}>
             {booking.remaining.toLocaleString()} د.ج
           </p>
@@ -206,7 +216,7 @@ function BookingCard({ booking, onClick, onDelete }: BookingCardProps) {
           <a 
             href={`tel:${booking.customerPhone}`}
             onClick={(e) => e.stopPropagation()}
-            className="p-3 bg-[#1A1A1A]/5 hover:bg-[#1A1A1A] hover:text-white rounded-2xl transition-all duration-300"
+            className="p-3 bg-muted hover:bg-primary hover:text-primary-foreground rounded-2xl transition-all duration-300"
           >
             <Phone size={18} />
           </a>
@@ -219,7 +229,7 @@ function BookingCard({ booking, onClick, onDelete }: BookingCardProps) {
           >
             <Trash2 size={18} />
           </button>
-          <button className="px-6 py-3 bg-[#1A1A1A] text-white rounded-2xl text-sm font-bold shadow-lg shadow-[#1A1A1A]/20 opacity-0 group-hover:opacity-100 transition-all duration-300">
+          <button className="px-6 py-3 bg-primary text-primary-foreground rounded-2xl text-sm font-bold shadow-lg shadow-primary/20 opacity-0 group-hover:opacity-100 transition-all duration-300">
             التفاصيل
           </button>
         </div>

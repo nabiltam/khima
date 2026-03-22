@@ -73,16 +73,16 @@ export default function BookingForm({ booking, customers, onSave, onClose }: Boo
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 lg:p-8 bg-black/40 backdrop-blur-md">
-      <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-[3rem] shadow-2xl border border-[#1A1A1A]/5">
+      <div className="bg-card w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-[3rem] shadow-xl shadow-black/10 border border-border">
         {/* Header */}
-        <div className="sticky top-0 bg-white/80 backdrop-blur-md p-8 border-b border-[#1A1A1A]/5 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-card/80 backdrop-blur-md p-8 border-b border-border flex items-center justify-between z-10">
           <div className="flex flex-col gap-1">
-            <h3 className="text-3xl font-bold tracking-tight text-[#1A1A1A]">
+            <h3 className="text-3xl font-bold tracking-tight text-foreground">
               {booking ? 'تعديل حجز' : 'حجز خيمة جديد'}
             </h3>
-            <p className="text-[#1A1A1A]/40 font-medium text-sm">أدخل تفاصيل الحجز والزبون بدقة</p>
+            <p className="text-muted-foreground font-medium text-sm">أدخل تفاصيل الحجز والزبون بدقة</p>
           </div>
-          <button onClick={onClose} className="p-3 hover:bg-[#1A1A1A]/5 rounded-full transition-colors">
+          <button onClick={onClose} className="p-3 hover:bg-muted rounded-full transition-colors text-foreground">
             <X size={24} />
           </button>
         </div>
@@ -90,20 +90,20 @@ export default function BookingForm({ booking, customers, onSave, onClose }: Boo
         <form onSubmit={handleSubmit} className="p-8 lg:p-12 space-y-12">
           {/* Section: Tent Info */}
           <div className="space-y-8">
-            <div className="flex items-center gap-3 text-[#1A1A1A]/40">
+            <div className="flex items-center gap-3 text-muted-foreground">
               <Tent size={20} />
               <h4 className="text-xs font-bold uppercase tracking-widest">بيانات الخيمة</h4>
-              <div className="flex-1 h-px bg-[#1A1A1A]/5" />
+              <div className="flex-1 h-px bg-border" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[#1A1A1A]/60">رقم الخيمة</label>
+                <label className="text-sm font-bold text-muted-foreground">رقم الخيمة</label>
                 <select
                   required
                   value={formData.tentId}
                   onChange={e => setFormData({ ...formData, tentId: e.target.value })}
-                  className="w-full px-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-bold"
+                  className="w-full px-6 py-4 bg-muted border-none rounded-2xl focus:ring-2 focus:ring-primary transition-all font-bold text-foreground"
                 >
                   <option value="">اختر خيمة</option>
                   <option value="1">خيمة 1</option>
@@ -113,11 +113,11 @@ export default function BookingForm({ booking, customers, onSave, onClose }: Boo
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[#1A1A1A]/60">حجم الخيمة</label>
+                <label className="text-sm font-bold text-muted-foreground">حجم الخيمة</label>
                 <select
                   value={formData.tentSize}
                   onChange={e => setFormData({ ...formData, tentSize: e.target.value as TentSize })}
-                  className="w-full px-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-bold"
+                  className="w-full px-6 py-4 bg-muted border-none rounded-2xl focus:ring-2 focus:ring-primary transition-all font-bold text-foreground"
                 >
                   <option value="12/12">12/12</option>
                   <option value="9/12">9/12</option>
@@ -127,16 +127,16 @@ export default function BookingForm({ booking, customers, onSave, onClose }: Boo
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[#1A1A1A]/60">المكان</label>
+                <label className="text-sm font-bold text-muted-foreground">المكان</label>
                 <div className="relative">
-                  <MapPin size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-[#1A1A1A]/40" />
+                  <MapPin size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input
                     required
                     list="locations-list"
                     type="text"
                     value={formData.location}
                     onChange={e => setFormData({ ...formData, location: e.target.value })}
-                    className="w-full pl-14 pr-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-bold"
+                    className="w-full pl-14 pr-6 py-4 bg-muted border-none rounded-2xl focus:ring-2 focus:ring-primary transition-all font-bold text-foreground"
                     placeholder="اختر أو اكتب المكان..."
                   />
                   <datalist id="locations-list">
@@ -151,38 +151,38 @@ export default function BookingForm({ booking, customers, onSave, onClose }: Boo
 
           {/* Section: Customer Info */}
           <div className="space-y-8">
-            <div className="flex items-center gap-3 text-[#1A1A1A]/40">
+            <div className="flex items-center gap-3 text-muted-foreground">
               <User size={20} />
               <h4 className="text-xs font-bold uppercase tracking-widest">بيانات الزبون</h4>
-              <div className="flex-1 h-px bg-[#1A1A1A]/5" />
+              <div className="flex-1 h-px bg-border" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[#1A1A1A]/60">رقم الهاتف</label>
+                <label className="text-sm font-bold text-muted-foreground">رقم الهاتف</label>
                 <div className="relative">
-                  <Phone size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-[#1A1A1A]/40" />
+                  <Phone size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input
                     required
                     type="tel"
                     value={formData.customerPhone}
                     onChange={e => handlePhoneChange(e.target.value)}
-                    className="w-full pl-14 pr-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-bold"
+                    className="w-full pl-14 pr-6 py-4 bg-muted border-none rounded-2xl focus:ring-2 focus:ring-primary transition-all font-bold text-foreground"
                     placeholder="05XXXXXXXX"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[#1A1A1A]/60">اسم الزبون</label>
+                <label className="text-sm font-bold text-muted-foreground">اسم الزبون</label>
                 <div className="relative">
-                  <User size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-[#1A1A1A]/40" />
+                  <User size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input
                     required
                     type="text"
                     value={formData.customerName}
                     onChange={e => setFormData({ ...formData, customerName: e.target.value })}
-                    className="w-full pl-14 pr-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-bold"
+                    className="w-full pl-14 pr-6 py-4 bg-muted border-none rounded-2xl focus:ring-2 focus:ring-primary transition-all font-bold text-foreground"
                     placeholder="الاسم الكامل"
                   />
                 </div>
@@ -192,22 +192,22 @@ export default function BookingForm({ booking, customers, onSave, onClose }: Boo
 
           {/* Section: Financials */}
           <div className="space-y-8">
-            <div className="flex items-center gap-3 text-[#1A1A1A]/40">
+            <div className="flex items-center gap-3 text-muted-foreground">
               <DollarSign size={20} />
               <h4 className="text-xs font-bold uppercase tracking-widest">التفاصيل المالية</h4>
-              <div className="flex-1 h-px bg-[#1A1A1A]/5" />
+              <div className="flex-1 h-px bg-border" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-[#1A1A1A]/60">السعر الإجمالي</label>
+                  <label className="text-sm font-bold text-muted-foreground">السعر الإجمالي</label>
                   <input
                     required
                     type="number"
                     value={formData.totalPrice}
                     onChange={e => setFormData({ ...formData, totalPrice: Number(e.target.value) })}
-                    className="w-full px-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-bold"
+                    className="w-full px-6 py-4 bg-muted border-none rounded-2xl focus:ring-2 focus:ring-primary transition-all font-bold text-foreground"
                   />
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -219,8 +219,8 @@ export default function BookingForm({ booking, customers, onSave, onClose }: Boo
                       className={cn(
                         "px-3 py-1.5 rounded-xl text-xs font-bold transition-all border",
                         formData.totalPrice === price 
-                          ? "bg-[#1A1A1A] text-white border-[#1A1A1A]" 
-                          : "bg-white text-[#1A1A1A]/60 border-[#1A1A1A]/10 hover:border-[#1A1A1A]/30"
+                          ? "bg-primary text-primary-foreground border-primary" 
+                          : "bg-card text-muted-foreground border-border hover:border-primary/30"
                       )}
                     >
                       {price}
@@ -231,13 +231,13 @@ export default function BookingForm({ booking, customers, onSave, onClose }: Boo
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-[#1A1A1A]/60">العربون المدفوع</label>
+                  <label className="text-sm font-bold text-muted-foreground">العربون المدفوع</label>
                   <input
                     required
                     type="number"
                     value={formData.deposit}
                     onChange={e => setFormData({ ...formData, deposit: Number(e.target.value) })}
-                    className="w-full px-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-bold"
+                    className="w-full px-6 py-4 bg-muted border-none rounded-2xl focus:ring-2 focus:ring-primary transition-all font-bold text-foreground"
                   />
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -249,8 +249,8 @@ export default function BookingForm({ booking, customers, onSave, onClose }: Boo
                       className={cn(
                         "px-3 py-1.5 rounded-xl text-xs font-bold transition-all border",
                         formData.deposit === amount 
-                          ? "bg-[#1A1A1A] text-white border-[#1A1A1A]" 
-                          : "bg-white text-[#1A1A1A]/60 border-[#1A1A1A]/10 hover:border-[#1A1A1A]/30"
+                          ? "bg-primary text-primary-foreground border-primary" 
+                          : "bg-card text-muted-foreground border-border hover:border-primary/30"
                       )}
                     >
                       {amount}
@@ -260,8 +260,8 @@ export default function BookingForm({ booking, customers, onSave, onClose }: Boo
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[#1A1A1A]/60">المبلغ المتبقي</label>
-                <div className="w-full px-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl font-bold text-red-500">
+                <label className="text-sm font-bold text-muted-foreground">المبلغ المتبقي</label>
+                <div className="w-full px-6 py-4 bg-muted border-none rounded-2xl font-bold text-red-500">
                   {formData.remaining?.toLocaleString()} د.ج
                 </div>
               </div>
@@ -270,45 +270,45 @@ export default function BookingForm({ booking, customers, onSave, onClose }: Boo
 
           {/* Section: Time & Date */}
           <div className="space-y-8">
-            <div className="flex items-center gap-3 text-[#1A1A1A]/40">
+            <div className="flex items-center gap-3 text-muted-foreground">
               <Calendar size={20} />
               <h4 className="text-xs font-bold uppercase tracking-widest">الوقت والتاريخ</h4>
-              <div className="flex-1 h-px bg-[#1A1A1A]/5" />
+              <div className="flex-1 h-px bg-border" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[#1A1A1A]/60">تاريخ البداية</label>
+                <label className="text-sm font-bold text-muted-foreground">تاريخ البداية</label>
                 <input
                   required
                   type="date"
                   value={formData.startDate}
                   onChange={e => setFormData({ ...formData, startDate: e.target.value })}
-                  className="w-full px-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-bold"
+                  className="w-full px-6 py-4 bg-muted border-none rounded-2xl focus:ring-2 focus:ring-primary transition-all font-bold text-foreground"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[#1A1A1A]/60">تاريخ النهاية</label>
+                <label className="text-sm font-bold text-muted-foreground">تاريخ النهاية</label>
                 <input
                   required
                   type="date"
                   value={formData.endDate}
                   onChange={e => setFormData({ ...formData, endDate: e.target.value })}
-                  className="w-full px-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-bold"
+                  className="w-full px-6 py-4 bg-muted border-none rounded-2xl focus:ring-2 focus:ring-primary transition-all font-bold text-foreground"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[#1A1A1A]/60">ساعة الاستلام</label>
+                <label className="text-sm font-bold text-muted-foreground">ساعة الاستلام</label>
                 <div className="relative">
-                  <Clock size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-[#1A1A1A]/40" />
+                  <Clock size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input
                     required
                     type="time"
                     value={formData.pickupTime}
                     onChange={e => setFormData({ ...formData, pickupTime: e.target.value })}
-                    className="w-full pl-14 pr-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-bold"
+                    className="w-full pl-14 pr-6 py-4 bg-muted border-none rounded-2xl focus:ring-2 focus:ring-primary transition-all font-bold text-foreground"
                   />
                 </div>
               </div>
@@ -316,17 +316,17 @@ export default function BookingForm({ booking, customers, onSave, onClose }: Boo
           </div>
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-end gap-4 pt-8 border-t border-[#1A1A1A]/5">
+          <div className="flex items-center justify-end gap-4 pt-8 border-t border-border">
             <button
               type="button"
               onClick={onClose}
-              className="px-8 py-4 text-[#1A1A1A]/60 font-bold hover:text-[#1A1A1A] transition-colors"
+              className="px-8 py-4 text-muted-foreground font-bold hover:text-foreground transition-colors"
             >
               إلغاء
             </button>
             <button
               type="submit"
-              className="px-12 py-4 bg-[#1A1A1A] text-white rounded-2xl font-bold shadow-2xl shadow-[#1A1A1A]/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-3"
+              className="px-12 py-4 bg-primary text-primary-foreground rounded-2xl font-bold shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-3"
             >
               <Save size={20} />
               حفظ الحجز

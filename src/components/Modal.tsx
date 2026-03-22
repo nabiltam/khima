@@ -19,19 +19,19 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-[#1A1A1A]/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl overflow-hidden"
+            className="relative w-full max-w-lg bg-card rounded-[2.5rem] shadow-xl shadow-black/10 overflow-hidden border border-border"
           >
-            <div className="p-8 border-b border-[#1A1A1A]/5 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-[#1A1A1A]">{title}</h3>
+            <div className="p-8 border-b border-border flex items-center justify-between">
+              <h3 className="text-xl font-bold text-foreground">{title}</h3>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-[#1A1A1A]/5 rounded-xl transition-colors"
+                className="p-2 hover:bg-muted rounded-xl transition-colors text-foreground"
               >
                 <X size={20} />
               </button>

@@ -48,18 +48,18 @@ export default function CustomerDirectory({ customers, bookings, onDeleteCustome
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex flex-col gap-2">
-          <h2 className="text-4xl font-bold tracking-tight text-[#1A1A1A]">سجل الزبائن</h2>
-          <p className="text-[#1A1A1A]/60 font-medium">إدارة بيانات الزبائن وتاريخ حجوزاتهم</p>
+          <h2 className="text-4xl font-bold tracking-tight text-foreground">سجل الزبائن</h2>
+          <p className="text-muted-foreground font-medium">إدارة بيانات الزبائن وتاريخ حجوزاتهم</p>
         </div>
 
         <div className="relative w-full md:w-96">
-          <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-[#1A1A1A]/40" />
+          <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             placeholder="بحث بالاسم أو رقم الهاتف..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-14 pr-6 py-4 bg-white border border-[#1A1A1A]/5 rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-bold shadow-sm"
+            className="w-full pl-14 pr-6 py-4 bg-card border border-border rounded-2xl focus:ring-2 focus:ring-primary transition-all font-bold shadow-sm text-foreground"
           />
         </div>
       </div>
@@ -71,28 +71,28 @@ export default function CustomerDirectory({ customers, bookings, onDeleteCustome
           return (
             <div 
               key={customer.id}
-              className="group bg-white p-8 rounded-[2.5rem] border border-[#1A1A1A]/5 hover:border-[#1A1A1A]/20 hover:shadow-2xl transition-all duration-500 flex flex-col gap-8"
+              className="group bg-card p-8 rounded-[2.5rem] border border-border hover:border-primary/30 hover:shadow-xl hover:shadow-black/5 transition-all duration-500 flex flex-col gap-8"
             >
               <div className="flex items-center justify-between">
-                <div className="w-16 h-16 bg-[#1A1A1A] text-white rounded-2xl flex items-center justify-center text-2xl font-bold">
+                <div className="w-16 h-16 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center text-2xl font-bold">
                   {customer.name.charAt(0)}
                 </div>
                 <div className="flex items-center gap-2">
                   <a 
                     href={`tel:${customer.phone}`}
-                    className="p-3 bg-[#1A1A1A]/5 hover:bg-[#1A1A1A] hover:text-white rounded-xl transition-all duration-300"
+                    className="p-3 bg-muted hover:bg-primary hover:text-primary-foreground rounded-xl transition-all duration-300"
                   >
                     <Phone size={18} />
                   </a>
                   <button 
                     onClick={() => sendWhatsApp(customer, stats.lastBooking)}
-                    className="p-3 bg-[#1A1A1A]/5 hover:bg-emerald-500 hover:text-white rounded-xl transition-all duration-300"
+                    className="p-3 bg-muted hover:bg-emerald-500 hover:text-white rounded-xl transition-all duration-300"
                   >
                     <MessageSquare size={18} />
                   </button>
                   <button 
                     onClick={() => onDeleteCustomer(customer.id)}
-                    className="p-3 bg-[#1A1A1A]/5 hover:bg-red-500 hover:text-white rounded-xl transition-all duration-300"
+                    className="p-3 bg-muted hover:bg-red-500 hover:text-white rounded-xl transition-all duration-300"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -100,24 +100,24 @@ export default function CustomerDirectory({ customers, bookings, onDeleteCustome
               </div>
 
               <div className="space-y-1">
-                <h4 className="text-2xl font-bold tracking-tight text-[#1A1A1A]">{customer.name}</h4>
-                <p className="text-sm font-bold text-[#1A1A1A]/40">{customer.phone}</p>
+                <h4 className="text-2xl font-bold tracking-tight text-foreground">{customer.name}</h4>
+                <p className="text-sm font-bold text-muted-foreground">{customer.phone}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 pt-6 border-t border-[#1A1A1A]/5">
+              <div className="grid grid-cols-2 gap-4 pt-6 border-t border-border">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#1A1A1A]/40">إجمالي الحجوزات</p>
-                  <p className="text-xl font-bold text-[#1A1A1A]">{stats.totalBookings}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">إجمالي الحجوزات</p>
+                  <p className="text-xl font-bold text-foreground">{stats.totalBookings}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#1A1A1A]/40">آخر حجز</p>
-                  <p className="text-sm font-bold text-[#1A1A1A]">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">آخر حجز</p>
+                  <p className="text-sm font-bold text-foreground">
                     {stats.lastBooking ? format(new Date(stats.lastBooking.startDate), 'd MMM yyyy', { locale: ar }) : 'لا يوجد'}
                   </p>
                 </div>
               </div>
 
-              <button className="w-full py-4 bg-[#1A1A1A]/5 text-[#1A1A1A] rounded-2xl text-sm font-bold hover:bg-[#1A1A1A] hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group/btn">
+              <button className="w-full py-4 bg-muted text-foreground rounded-2xl text-sm font-bold hover:bg-primary hover:text-primary-foreground transition-all duration-300 flex items-center justify-center gap-2 group/btn">
                 عرض السجل الكامل
                 <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
               </button>

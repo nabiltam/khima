@@ -28,23 +28,46 @@ export default function Layout({ children, activeTab, setActiveTab, user }: Layo
   ];
 
   return (
-    <div className="min-h-screen bg-[#FDFCFB] text-[#1A1A1A] font-sans selection:bg-[#E6D5B8] selection:text-[#1A1A1A]">
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 selection:text-foreground">
       {/* Mobile Header */}
-      <header className="lg:hidden flex items-center justify-between p-4 border-b border-[#1A1A1A]/5 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <h1 className="text-xl font-bold tracking-tight text-[#1A1A1A]">خيمتي</h1>
-        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-[#1A1A1A]/5 rounded-full transition-colors">
-          {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+      <header className="lg:hidden flex items-center justify-between p-4 border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-muted rounded-xl flex items-center justify-center overflow-hidden border border-border">
+            <img 
+              src="https://picsum.photos/seed/artitam/200/200" 
+              alt="Logo" 
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+          <h1 className="text-xl font-bold tracking-tight text-foreground">أرتي تام</h1>
+        </div>
+        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-muted rounded-full transition-colors">
+          {isSidebarOpen ? <X size={24} className="text-foreground" /> : <Menu size={24} className="text-foreground" />}
         </button>
       </header>
 
       <div className="flex">
         {/* Sidebar */}
         <aside className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-[#1A1A1A]/5 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-40 w-64 bg-card border-r border-border transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}>
           <div className="p-8">
-            <h1 className="text-3xl font-bold tracking-tighter mb-12 text-[#1A1A1A]">خيمتي</h1>
+            <div className="flex flex-col items-center gap-4 mb-12">
+              <div className="w-24 h-24 bg-background rounded-3xl flex items-center justify-center overflow-hidden shadow-xl shadow-black/5 border border-border">
+                <img 
+                  src="https://picsum.photos/seed/artitam/400/400" 
+                  alt="Arti Tam Logo" 
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <div className="text-center">
+                <h1 className="text-2xl font-bold tracking-tighter text-foreground">أرتي تام</h1>
+                <p className="text-[10px] font-bold text-primary uppercase tracking-widest">لكراء الخيام والديكورات</p>
+              </div>
+            </div>
             <nav className="space-y-2">
               {navItems.map((item) => (
                 <button
@@ -56,8 +79,8 @@ export default function Layout({ children, activeTab, setActiveTab, user }: Layo
                   className={cn(
                     "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
                     activeTab === item.id 
-                      ? "bg-[#1A1A1A] text-white shadow-lg shadow-[#1A1A1A]/20" 
-                      : "text-[#1A1A1A]/60 hover:bg-[#1A1A1A]/5 hover:text-[#1A1A1A]"
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >
                   <item.icon size={18} />
@@ -88,7 +111,7 @@ export default function Layout({ children, activeTab, setActiveTab, user }: Layo
       {/* Floating Action Button */}
       <button 
         onClick={() => setActiveTab('new-booking')}
-        className="fixed bottom-8 right-8 w-16 h-16 bg-[#1A1A1A] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 z-50 group"
+        className="fixed bottom-8 right-8 w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 z-50 group"
       >
         <PlusCircle size={28} className="group-hover:rotate-90 transition-transform duration-300" />
       </button>
@@ -96,7 +119,7 @@ export default function Layout({ children, activeTab, setActiveTab, user }: Layo
       {/* Mobile Overlay */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 lg:hidden"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
