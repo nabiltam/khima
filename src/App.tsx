@@ -8,16 +8,17 @@ import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import BookingForm from './components/BookingForm';
 import CustomerDirectory from './components/CustomerDirectory';
-import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Trash2 } from 'lucide-react';
+import Modal from './components/Modal';
+import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Trash2, LogIn, LogOut, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Booking, Customer } from './types';
 import { cn } from './lib/utils';
 import { differenceInHours, parseISO, isBefore, addHours } from 'date-fns';
+import { db, auth, signIn, signOut, handleFirestoreError, OperationType } from './firebase';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, updateDoc, getDocs } from 'firebase/firestore';
 
 // Mock Data
-const INITIAL_CUSTOMERS: Customer[] = [
-  { id: '2', name: 'سارة علي', phone: '0660987654' },
-];
-
+const INITIAL_CUSTOMERS: Customer[] = [];
 const INITIAL_BOOKINGS: Booking[] = [];
 
 const LOCATIONS = [
@@ -37,14 +38,10 @@ const LOCATIONS = [
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [bookings, setBookings] = useState<Booking[]>(() => {
-    const saved = localStorage.getItem('tent_bookings');
-    return saved ? JSON.parse(saved) : INITIAL_BOOKINGS;
-  });
-  const [customers, setCustomers] = useState<Customer[]>(() => {
-    const saved = localStorage.getItem('tent_customers');
-    return saved ? JSON.parse(saved) : INITIAL_CUSTOMERS;
-  });
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [pendingReminders, setPendingReminders] = useState<Array<{ booking: Booking, type: '24h' | '1h' }>>([]);
@@ -53,15 +50,43 @@ export default function App() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'completed'>('all');
   const [bookingToDelete, setBookingToDelete] = useState<string | null>(null);
   const [customerToDelete, setCustomerToDelete] = useState<string | null>(null);
+  const [showMassDeleteConfirm, setShowMassDeleteConfirm] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Persist data
+  // Auth listener
   useEffect(() => {
-    localStorage.setItem('tent_bookings', JSON.stringify(bookings));
-  }, [bookings]);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
+  // Firestore listeners
   useEffect(() => {
-    localStorage.setItem('tent_customers', JSON.stringify(customers));
-  }, [customers]);
+    if (!user) {
+      setBookings([]);
+      setCustomers([]);
+      return;
+    }
+
+    const bookingsQuery = query(collection(db, 'bookings'), orderBy('createdAt', 'desc'));
+    const unsubscribeBookings = onSnapshot(bookingsQuery, (snapshot) => {
+      const data = snapshot.docs.map(doc => doc.data() as Booking);
+      setBookings(data);
+    }, (error) => handleFirestoreError(error, OperationType.LIST, 'bookings'));
+
+    const customersQuery = query(collection(db, 'customers'), orderBy('name', 'asc'));
+    const unsubscribeCustomers = onSnapshot(customersQuery, (snapshot) => {
+      const data = snapshot.docs.map(doc => doc.data() as Customer);
+      setCustomers(data);
+    }, (error) => handleFirestoreError(error, OperationType.LIST, 'customers'));
+
+    return () => {
+      unsubscribeBookings();
+      unsubscribeCustomers();
+    };
+  }, [user]);
 
   // Automated Reminder Check Logic
   useEffect(() => {
@@ -106,36 +131,43 @@ export default function App() {
     window.open(url, '_blank');
 
     // Mark as sent
-    setBookings(prev => prev.map(b => 
-      b.id === booking.id 
-        ? { ...b, [type === '24h' ? 'reminder24hSent' : 'reminder1hSent']: true } 
-        : b
-    ));
+    const bookingRef = doc(db, 'bookings', booking.id);
+    updateDoc(bookingRef, {
+      [type === '24h' ? 'reminder24hSent' : 'reminder1hSent']: true
+    }).catch(error => handleFirestoreError(error, OperationType.UPDATE, `bookings/${booking.id}`));
   };
 
-  const handleSaveBooking = (bookingData: Partial<Booking>) => {
-    if (editingBooking) {
-      setBookings(prev => prev.map(b => b.id === editingBooking.id ? { ...b, ...bookingData } as Booking : b));
-    } else {
-      const newBooking: Booking = {
-        ...bookingData,
-        id: Math.random().toString(36).substr(2, 9),
-        createdAt: new Date().toISOString(),
-      } as Booking;
-      setBookings(prev => [...prev, newBooking]);
-      
-      // Add customer if new
-      if (!customers.find(c => c.phone === newBooking.customerPhone)) {
-        setCustomers(prev => [...prev, {
-          id: Math.random().toString(36).substr(2, 9),
-          name: newBooking.customerName,
-          phone: newBooking.customerPhone
-        }]);
+  const handleSaveBooking = async (bookingData: Partial<Booking>) => {
+    try {
+      if (editingBooking) {
+        const bookingRef = doc(db, 'bookings', editingBooking.id);
+        await setDoc(bookingRef, { ...editingBooking, ...bookingData }, { merge: true });
+      } else {
+        const id = Math.random().toString(36).substr(2, 9);
+        const newBooking: Booking = {
+          ...bookingData,
+          id,
+          createdAt: new Date().toISOString(),
+        } as Booking;
+        
+        await setDoc(doc(db, 'bookings', id), newBooking);
+        
+        // Add customer if new
+        if (!customers.find(c => c.phone === newBooking.customerPhone)) {
+          const customerId = Math.random().toString(36).substr(2, 9);
+          await setDoc(doc(db, 'customers', customerId), {
+            id: customerId,
+            name: newBooking.customerName,
+            phone: newBooking.customerPhone
+          });
+        }
       }
+      setShowBookingForm(false);
+      setEditingBooking(null);
+      setActiveTab('dashboard');
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, 'bookings');
     }
-    setShowBookingForm(false);
-    setEditingBooking(null);
-    setActiveTab('dashboard');
   };
 
   const handleEditBooking = (booking: Booking) => {
@@ -147,10 +179,14 @@ export default function App() {
     setBookingToDelete(id);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (bookingToDelete) {
-      setBookings(prev => prev.filter(b => b.id !== bookingToDelete));
-      setBookingToDelete(null);
+      try {
+        await deleteDoc(doc(db, 'bookings', bookingToDelete));
+        setBookingToDelete(null);
+      } catch (error) {
+        handleFirestoreError(error, OperationType.DELETE, `bookings/${bookingToDelete}`);
+      }
     }
   };
 
@@ -158,15 +194,23 @@ export default function App() {
     setCustomerToDelete(id);
   };
 
-  const confirmDeleteCustomer = () => {
+  const confirmDeleteCustomer = async () => {
     if (customerToDelete) {
-      setCustomers(prev => prev.filter(c => c.id !== customerToDelete));
-      setCustomerToDelete(null);
+      try {
+        await deleteDoc(doc(db, 'customers', customerToDelete));
+        setCustomerToDelete(null);
+      } catch (error) {
+        handleFirestoreError(error, OperationType.DELETE, `customers/${customerToDelete}`);
+      }
     }
   };
 
-  const handleMarkAsCompleted = (id: string) => {
-    setBookings(prev => prev.map(b => b.id === id ? { ...b, status: 'completed' } : b));
+  const handleMarkAsCompleted = async (id: string) => {
+    try {
+      await updateDoc(doc(db, 'bookings', id), { status: 'completed' });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, `bookings/${id}`);
+    }
   };
 
   const filteredBookings = bookings.filter(b => {
@@ -179,8 +223,43 @@ export default function App() {
 
   const filteredTotalRevenue = filteredBookings.reduce((sum, b) => sum + b.totalPrice, 0);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-[#1A1A1A] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center p-6 text-right" dir="rtl">
+        <div className="bg-white p-12 rounded-[3rem] border border-[#1A1A1A]/5 max-w-md w-full shadow-2xl space-y-8">
+          <div className="space-y-4 text-center">
+            <div className="w-20 h-20 bg-[#1A1A1A] text-white rounded-3xl flex items-center justify-center mx-auto shadow-xl shadow-[#1A1A1A]/20">
+              <LogIn size={40} />
+            </div>
+            <h2 className="text-4xl font-bold text-[#1A1A1A] tracking-tight">تسجيل الدخول</h2>
+            <p className="text-[#1A1A1A]/60 font-medium">يرجى تسجيل الدخول للوصول إلى نظام إدارة الخيام</p>
+          </div>
+          <button
+            onClick={signIn}
+            className="w-full py-5 bg-[#1A1A1A] text-white rounded-2xl font-bold hover:bg-[#1A1A1A]/90 transition-all shadow-xl shadow-[#1A1A1A]/20 flex items-center justify-center gap-3"
+          >
+            <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
+            تسجيل الدخول باستخدام Google
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <Layout activeTab={activeTab} setActiveTab={(tab) => {
+    <Layout 
+      activeTab={activeTab} 
+      user={user}
+      onSignOut={signOut}
+      setActiveTab={(tab) => {
       if (tab === 'new-booking') {
         setEditingBooking(null);
         setShowBookingForm(true);
@@ -338,17 +417,28 @@ export default function App() {
 
           <div className="bg-white p-12 rounded-[3rem] border border-[#1A1A1A]/5 space-y-8">
             <div className="space-y-4">
+              <h3 className="text-xl font-bold text-[#1A1A1A]">الحساب</h3>
+              <div className="flex items-center gap-4 p-4 bg-[#1A1A1A]/5 rounded-2xl">
+                <img src={user.photoURL || ''} className="w-12 h-12 rounded-xl" alt={user.displayName || ''} />
+                <div>
+                  <p className="font-bold text-[#1A1A1A]">{user.displayName}</p>
+                  <p className="text-sm text-[#1A1A1A]/40">{user.email}</p>
+                </div>
+              </div>
+              <button 
+                onClick={signOut}
+                className="px-8 py-4 bg-[#1A1A1A] text-white rounded-2xl font-bold hover:bg-[#1A1A1A]/90 transition-all flex items-center gap-2"
+              >
+                <LogOut size={18} />
+                تسجيل الخروج
+              </button>
+            </div>
+
+            <div className="space-y-4 pt-8 border-t border-[#1A1A1A]/5">
               <h3 className="text-xl font-bold text-red-500">منطقة الخطر</h3>
               <p className="text-[#1A1A1A]/60">سيؤدي مسح البيانات إلى حذف جميع الحجوزات والزبائن بشكل نهائي.</p>
               <button 
-                onClick={() => {
-                  if (window.confirm('هل أنت متأكد من رغبتك في مسح جميع البيانات؟')) {
-                    setBookings([]);
-                    setCustomers([]);
-                    localStorage.clear();
-                    window.location.reload();
-                  }
-                }}
+                onClick={() => setShowMassDeleteConfirm(true)}
                 className="px-8 py-4 bg-red-500 text-white rounded-2xl font-bold shadow-xl shadow-red-500/20 hover:bg-red-600 transition-all"
               >
                 مسح جميع البيانات
@@ -357,6 +447,70 @@ export default function App() {
           </div>
         </div>
       )}
+
+      <Modal
+        isOpen={showMassDeleteConfirm}
+        onClose={() => setShowMassDeleteConfirm(false)}
+        title="تأكيد مسح البيانات"
+      >
+        <div className="space-y-6 text-center">
+          <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
+            <AlertCircle size={32} />
+          </div>
+          <p className="text-[#1A1A1A]/60 font-medium">
+            هل أنت متأكد من رغبتك في مسح جميع البيانات؟ سيتم حذف جميع الحجوزات والزبائن بشكل نهائي ولا يمكن التراجع عن هذه العملية.
+          </p>
+          <div className="flex gap-3">
+            <button 
+              onClick={() => setShowMassDeleteConfirm(false)}
+              className="flex-1 py-4 bg-[#1A1A1A]/5 text-[#1A1A1A] rounded-2xl font-bold hover:bg-[#1A1A1A]/10 transition-all"
+            >
+              إلغاء
+            </button>
+            <button 
+              onClick={async () => {
+                setShowMassDeleteConfirm(false);
+                try {
+                  const bookingsSnapshot = await getDocs(collection(db, 'bookings'));
+                  const customersSnapshot = await getDocs(collection(db, 'customers'));
+                  
+                  const deletePromises = [
+                    ...bookingsSnapshot.docs.map(d => deleteDoc(d.ref)),
+                    ...customersSnapshot.docs.map(d => deleteDoc(d.ref))
+                  ];
+                  
+                  await Promise.all(deletePromises);
+                  setSuccessMessage('تم مسح جميع البيانات بنجاح.');
+                } catch (error) {
+                  handleFirestoreError(error, OperationType.WRITE, 'mass-delete');
+                }
+              }}
+              className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-bold shadow-lg shadow-red-500/20 hover:bg-red-600 transition-all"
+            >
+              مسح الكل
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={!!successMessage}
+        onClose={() => setSuccessMessage(null)}
+        title="نجاح"
+      >
+        <div className="space-y-6 text-center">
+          <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+            <CheckCircle2 size={32} />
+          </div>
+          <p className="text-[#1A1A1A]/60 font-medium">{successMessage}</p>
+          <button 
+            onClick={() => setSuccessMessage(null)}
+            className="w-full py-4 bg-[#1A1A1A] text-white rounded-2xl font-bold hover:bg-[#1A1A1A]/90 transition-all"
+          >
+            حسناً
+          </button>
+        </div>
+      </Modal>
 
       {showBookingForm && (
         <BookingForm 
@@ -371,56 +525,64 @@ export default function App() {
       )}
 
       {/* Custom Confirmation Modal */}
-      {bookingToDelete && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white p-8 rounded-[2rem] max-w-sm w-full shadow-2xl border border-[#1A1A1A]/5 space-y-6">
-            <div className="space-y-2 text-center">
-              <h3 className="text-2xl font-bold text-[#1A1A1A]">تأكيد الحذف</h3>
-              <p className="text-[#1A1A1A]/60 font-medium">هل أنت متأكد من رغبتك في حذف هذا الحجز؟ لا يمكن التراجع عن هذه العملية.</p>
-            </div>
-            <div className="flex gap-3">
-              <button 
-                onClick={() => setBookingToDelete(null)}
-                className="flex-1 py-4 bg-[#1A1A1A]/5 text-[#1A1A1A] rounded-2xl font-bold hover:bg-[#1A1A1A]/10 transition-all"
-              >
-                إلغاء
-              </button>
-              <button 
-                onClick={confirmDelete}
-                className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-bold shadow-lg shadow-red-500/20 hover:bg-red-600 transition-all"
-              >
-                حذف
-              </button>
-            </div>
+      <Modal
+        isOpen={!!bookingToDelete}
+        onClose={() => setBookingToDelete(null)}
+        title="تأكيد الحذف"
+      >
+        <div className="space-y-6 text-center">
+          <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
+            <AlertCircle size={32} />
+          </div>
+          <p className="text-[#1A1A1A]/60 font-medium">
+            هل أنت متأكد من رغبتك في حذف هذا الحجز؟ لا يمكن التراجع عن هذه العملية.
+          </p>
+          <div className="flex gap-3">
+            <button 
+              onClick={() => setBookingToDelete(null)}
+              className="flex-1 py-4 bg-[#1A1A1A]/5 text-[#1A1A1A] rounded-2xl font-bold hover:bg-[#1A1A1A]/10 transition-all"
+            >
+              إلغاء
+            </button>
+            <button 
+              onClick={confirmDelete}
+              className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-bold shadow-lg shadow-red-500/20 hover:bg-red-600 transition-all"
+            >
+              حذف
+            </button>
           </div>
         </div>
-      )}
+      </Modal>
 
       {/* Customer Delete Confirmation Modal */}
-      {customerToDelete && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white p-8 rounded-[2rem] max-w-sm w-full shadow-2xl border border-[#1A1A1A]/5 space-y-6">
-            <div className="space-y-2 text-center">
-              <h3 className="text-2xl font-bold text-[#1A1A1A]">حذف الزبون</h3>
-              <p className="text-[#1A1A1A]/60 font-medium">هل أنت متأكد من رغبتك في حذف هذا الزبون؟ سيتم حذف بياناته من السجل فقط (الحجوزات ستبقى موجودة).</p>
-            </div>
-            <div className="flex gap-3">
-              <button 
-                onClick={() => setCustomerToDelete(null)}
-                className="flex-1 py-4 bg-[#1A1A1A]/5 text-[#1A1A1A] rounded-2xl font-bold hover:bg-[#1A1A1A]/10 transition-all"
-              >
-                إلغاء
-              </button>
-              <button 
-                onClick={confirmDeleteCustomer}
-                className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-bold shadow-lg shadow-red-500/20 hover:bg-red-600 transition-all"
-              >
-                حذف
-              </button>
-            </div>
+      <Modal
+        isOpen={!!customerToDelete}
+        onClose={() => setCustomerToDelete(null)}
+        title="حذف الزبون"
+      >
+        <div className="space-y-6 text-center">
+          <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
+            <AlertCircle size={32} />
+          </div>
+          <p className="text-[#1A1A1A]/60 font-medium">
+            هل أنت متأكد من رغبتك في حذف هذا الزبون؟ سيتم حذف بياناته من السجل فقط (الحجوزات ستبقى موجودة).
+          </p>
+          <div className="flex gap-3">
+            <button 
+              onClick={() => setCustomerToDelete(null)}
+              className="flex-1 py-4 bg-[#1A1A1A]/5 text-[#1A1A1A] rounded-2xl font-bold hover:bg-[#1A1A1A]/10 transition-all"
+            >
+              إلغاء
+            </button>
+            <button 
+              onClick={confirmDeleteCustomer}
+              className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-bold shadow-lg shadow-red-500/20 hover:bg-red-600 transition-all"
+            >
+              حذف
+            </button>
           </div>
         </div>
-      )}
+      </Modal>
     </Layout>
   );
 }
