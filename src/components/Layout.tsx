@@ -4,7 +4,7 @@
  */
 
 import React, { ReactNode } from 'react';
-import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Settings, LogOut, Heart } from 'lucide-react';
+import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Settings, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { User } from 'firebase/auth';
@@ -14,10 +14,9 @@ interface LayoutProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   user?: User | null;
-  onSignOut?: () => void;
 }
 
-export default function Layout({ children, activeTab, setActiveTab, user, onSignOut }: LayoutProps) {
+export default function Layout({ children, activeTab, setActiveTab, user }: LayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
   const navItems = [
@@ -68,34 +67,6 @@ export default function Layout({ children, activeTab, setActiveTab, user, onSign
             </nav>
           </div>
 
-          {user && (
-            <div className="absolute bottom-0 left-0 right-0 p-8 border-t border-[#1A1A1A]/5 space-y-4">
-              <div className="flex items-center gap-3">
-                {user.photoURL ? (
-                  <img src={user.photoURL} className="w-10 h-10 rounded-xl" alt={user.displayName || ''} />
-                ) : (
-                  <div className="w-10 h-10 bg-[#1A1A1A] text-white rounded-xl flex items-center justify-center font-bold">
-                    {user.isAnonymous ? 'ش' : (user.displayName?.charAt(0) || 'U')}
-                  </div>
-                )}
-                <div className="overflow-hidden">
-                  <p className="text-sm font-bold text-[#1A1A1A] truncate">
-                    {user.isAnonymous ? 'شمس' : (user.displayName || 'مستخدم')}
-                  </p>
-                  <p className="text-[10px] text-[#1A1A1A]/40 truncate">
-                    {user.isAnonymous ? 'مديرة الأعمال' : (user.email || 'بدون بريد')}
-                  </p>
-                </div>
-              </div>
-              <button 
-                onClick={onSignOut}
-                className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-              >
-                <LogOut size={14} />
-                تسجيل الخروج
-              </button>
-            </div>
-          )}
         </aside>
 
         {/* Main Content */}

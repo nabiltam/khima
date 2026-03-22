@@ -9,11 +9,11 @@ import Dashboard from './components/Dashboard';
 import BookingForm from './components/BookingForm';
 import CustomerDirectory from './components/CustomerDirectory';
 import Modal from './components/Modal';
-import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Trash2, LogIn, LogOut, CheckCircle2, AlertCircle, Heart, Star } from 'lucide-react';
+import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Trash2, CheckCircle2, AlertCircle, Heart, Star } from 'lucide-react';
 import { Booking, Customer } from './types';
 import { cn } from './lib/utils';
 import { differenceInHours, parseISO, isBefore, addHours } from 'date-fns';
-import { db, auth, signInWithGoogle, signInAnon, signOut, handleFirestoreError, OperationType } from './firebase';
+import { db, auth, signInAnon, handleFirestoreError, OperationType } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, updateDoc, getDocs } from 'firebase/firestore';
 
@@ -234,35 +234,10 @@ export default function App() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-[#FDFCFB] flex items-center justify-center p-6 text-right" dir="rtl">
-        <div className="bg-white p-12 rounded-[3rem] border border-[#1A1A1A]/5 max-w-md w-full shadow-2xl space-y-8">
-          <div className="space-y-4 text-center">
-            <div className="w-20 h-20 bg-[#1A1A1A] text-white rounded-3xl flex items-center justify-center mx-auto shadow-xl shadow-[#1A1A1A]/20">
-              <LogIn size={40} />
-            </div>
-            <h2 className="text-4xl font-bold text-[#1A1A1A] tracking-tight">تسجيل الدخول</h2>
-            <p className="text-[#1A1A1A]/60 font-medium">يرجى تسجيل الدخول للوصول إلى النظام</p>
-          </div>
-
-          <button
-            onClick={signInWithGoogle}
-            className="w-full py-5 bg-[#1A1A1A] text-white rounded-2xl font-bold hover:bg-[#1A1A1A]/90 transition-all shadow-xl shadow-[#1A1A1A]/20 flex items-center justify-center gap-3"
-          >
-            <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
-            الدخول عبر Google
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <Layout 
       activeTab={activeTab} 
       user={user}
-      onSignOut={signOut}
       setActiveTab={(tab) => {
       if (tab === 'new-booking') {
         setEditingBooking(null);
@@ -422,34 +397,6 @@ export default function App() {
 
           <div className="bg-white p-12 rounded-[3rem] border border-[#1A1A1A]/5 space-y-8">
             <div className="space-y-4">
-              <h3 className="text-xl font-bold text-[#1A1A1A]">الحساب</h3>
-              <div className="flex items-center gap-4 p-4 bg-[#1A1A1A]/5 rounded-2xl">
-                {user.photoURL ? (
-                  <img src={user.photoURL} className="w-12 h-12 rounded-xl" alt={user.displayName || ''} />
-                ) : (
-                  <div className="w-12 h-12 bg-[#1A1A1A] text-white rounded-xl flex items-center justify-center font-bold text-xl">
-                    {user.isAnonymous ? 'ش' : (user.displayName?.charAt(0) || 'U')}
-                  </div>
-                )}
-                <div>
-                  <p className="font-bold text-[#1A1A1A]">
-                    {user.isAnonymous ? 'شمس (مديرة الأعمال)' : (user.displayName || 'مستخدم')}
-                  </p>
-                  <p className="text-sm text-[#1A1A1A]/40">
-                    {user.isAnonymous ? 'دخول بواسطة كود الوصول' : (user.email || 'بدون بريد')}
-                  </p>
-                </div>
-              </div>
-              <button 
-                onClick={signOut}
-                className="px-8 py-4 bg-[#1A1A1A] text-white rounded-2xl font-bold hover:bg-[#1A1A1A]/90 transition-all flex items-center gap-2"
-              >
-                <LogOut size={18} />
-                تسجيل الخروج
-              </button>
-            </div>
-
-            <div className="space-y-4 pt-8 border-t border-[#1A1A1A]/5">
               <h3 className="text-xl font-bold text-red-500">منطقة الخطر</h3>
               <p className="text-[#1A1A1A]/60">سيؤدي مسح البيانات إلى حذف جميع الحجوزات والزبائن بشكل نهائي.</p>
               <button 

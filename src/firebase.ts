@@ -80,6 +80,4 @@ async function testConnection() {
 }
 testConnection();
 
-export const signInWithGoogle = () => signInWithPopup(auth, googleProvider);
 export const signInAnon = () => signInAnonymously(auth);
-export const signOut = () => auth.signOut();
