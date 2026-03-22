@@ -37,8 +37,12 @@ export default function Dashboard({ bookings, pendingReminders, onEditBooking, o
     <div className="space-y-12">
       {/* Header */}
       <div className="flex flex-col gap-2">
-        <h2 className="text-4xl font-bold tracking-tight text-[#1A1A1A]">لوحة التحكم</h2>
-        <p className="text-[#1A1A1A]/60 font-medium">نظرة عامة على حالة الحجوزات اليوم</p>
+        <h2 className="text-4xl font-bold tracking-tight text-[#1A1A1A]">
+          {user?.isAnonymous ? 'مرحباً يا مديرة أعمالي شمس' : 'لوحة التحكم'}
+        </h2>
+        <p className="text-[#1A1A1A]/60 font-medium">
+          {user?.isAnonymous ? 'حفظكِ الله ورعاكِ يا جميلتي، إليكِ حالة الحجوزات اليوم' : 'نظرة عامة على حالة الحجوزات اليوم'}
+        </p>
       </div>
 
       {/* Stats Grid */}

@@ -13,7 +13,7 @@ import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Trash2, LogIn, Log
 import { Booking, Customer } from './types';
 import { cn } from './lib/utils';
 import { differenceInHours, parseISO, isBefore, addHours } from 'date-fns';
-import { db, auth, signInWithGoogle, signInWithEmail, signUpWithEmail, signOut, handleFirestoreError, OperationType } from './firebase';
+import { db, auth, signInWithGoogle, signInAnon, signOut, handleFirestoreError, OperationType } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, updateDoc, getDocs } from 'firebase/firestore';
 
@@ -52,14 +52,17 @@ export default function App() {
   const [customerToDelete, setCustomerToDelete] = useState<string | null>(null);
   const [showMassDeleteConfirm, setShowMassDeleteConfirm] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
 
   // Auth listener
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        try {
+          await signInAnon();
+        } catch (error) {
+          console.error("Failed to auto-login anonymously", error);
+        }
+      }
       setUser(currentUser);
       setLoading(false);
     });
@@ -223,29 +226,6 @@ export default function App() {
 
   const filteredTotalRevenue = filteredBookings.reduce((sum, b) => sum + b.totalPrice, 0);
 
-  const handleEmailAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthError(null);
-    try {
-      if (isSignUp) {
-        await signUpWithEmail(email, password);
-      } else {
-        await signInWithEmail(email, password);
-      }
-    } catch (error: any) {
-      console.error("Auth error:", error);
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-        setAuthError('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
-      } else if (error.code === 'auth/email-already-in-use') {
-        setAuthError('هذا البريد الإلكتروني مستخدم بالفعل.');
-      } else if (error.code === 'auth/weak-password') {
-        setAuthError('كلمة المرور ضعيفة جداً.');
-      } else {
-        setAuthError('حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة لاحقاً.');
-      }
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
@@ -262,71 +242,13 @@ export default function App() {
             <div className="w-20 h-20 bg-[#1A1A1A] text-white rounded-3xl flex items-center justify-center mx-auto shadow-xl shadow-[#1A1A1A]/20">
               <LogIn size={40} />
             </div>
-            <h2 className="text-4xl font-bold text-[#1A1A1A] tracking-tight">
-              {isSignUp ? 'إنشاء حساب' : 'تسجيل الدخول'}
-            </h2>
-            <p className="text-[#1A1A1A]/60 font-medium">
-              {isSignUp ? 'أدخل بياناتك لإنشاء حساب جديد' : 'يرجى تسجيل الدخول للوصول إلى النظام'}
-            </p>
-          </div>
-
-          <form onSubmit={handleEmailAuth} className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-[#1A1A1A]/60 mr-2">البريد الإلكتروني</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="example@email.com"
-                required
-                className="w-full px-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-medium"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-[#1A1A1A]/60 mr-2">كلمة المرور</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-                className="w-full px-6 py-4 bg-[#1A1A1A]/5 border-none rounded-2xl focus:ring-2 focus:ring-[#1A1A1A] transition-all font-medium"
-              />
-            </div>
-
-            {authError && (
-              <p className="text-red-500 text-sm font-bold text-center">{authError}</p>
-            )}
-
-            <button
-              type="submit"
-              className="w-full py-5 bg-[#1A1A1A] text-white rounded-2xl font-bold hover:bg-[#1A1A1A]/90 transition-all shadow-xl shadow-[#1A1A1A]/20"
-            >
-              {isSignUp ? 'إنشاء الحساب' : 'دخول'}
-            </button>
-          </form>
-
-          <div className="text-center">
-            <button 
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="text-sm font-bold text-[#1A1A1A]/60 hover:text-[#1A1A1A] transition-colors"
-            >
-              {isSignUp ? 'لديك حساب بالفعل؟ سجل دخولك' : 'ليس لديك حساب؟ أنشئ حساباً جديداً'}
-            </button>
-          </div>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#1A1A1A]/10"></div>
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-4 text-[#1A1A1A]/40 font-bold">أو</span>
-            </div>
+            <h2 className="text-4xl font-bold text-[#1A1A1A] tracking-tight">تسجيل الدخول</h2>
+            <p className="text-[#1A1A1A]/60 font-medium">يرجى تسجيل الدخول للوصول إلى النظام</p>
           </div>
 
           <button
             onClick={signInWithGoogle}
-            className="w-full py-4 bg-white border border-[#1A1A1A]/10 text-[#1A1A1A] rounded-2xl font-bold hover:bg-[#1A1A1A]/5 transition-all flex items-center justify-center gap-3"
+            className="w-full py-5 bg-[#1A1A1A] text-white rounded-2xl font-bold hover:bg-[#1A1A1A]/90 transition-all shadow-xl shadow-[#1A1A1A]/20 flex items-center justify-center gap-3"
           >
             <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
             الدخول عبر Google
@@ -506,15 +428,15 @@ export default function App() {
                   <img src={user.photoURL} className="w-12 h-12 rounded-xl" alt={user.displayName || ''} />
                 ) : (
                   <div className="w-12 h-12 bg-[#1A1A1A] text-white rounded-xl flex items-center justify-center font-bold text-xl">
-                    {user.displayName?.charAt(0) || user.email?.charAt(0).toUpperCase() || 'U'}
+                    {user.isAnonymous ? 'ش' : (user.displayName?.charAt(0) || 'U')}
                   </div>
                 )}
                 <div>
                   <p className="font-bold text-[#1A1A1A]">
-                    {user.displayName || 'مستخدم'}
+                    {user.isAnonymous ? 'شمس (مديرة الأعمال)' : (user.displayName || 'مستخدم')}
                   </p>
                   <p className="text-sm text-[#1A1A1A]/40">
-                    {user.email || 'بدون بريد'}
+                    {user.isAnonymous ? 'دخول بواسطة كود الوصول' : (user.email || 'بدون بريد')}
                   </p>
                 </div>
               </div>

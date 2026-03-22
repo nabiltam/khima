@@ -4,7 +4,7 @@
  */
 
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInAnonymously, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInAnonymously } from 'firebase/auth';
 import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, getDocFromServer } from 'firebase/firestore';
 
 // Import the Firebase configuration
@@ -82,7 +82,4 @@ testConnection();
 
 export const signInWithGoogle = () => signInWithPopup(auth, googleProvider);
 export const signInAnon = () => signInAnonymously(auth);
-export const signInWithEmail = (email: string, pass: string) => signInWithEmailAndPassword(auth, email, pass);
-export const signUpWithEmail = (email: string, pass: string) => createUserWithEmailAndPassword(auth, email, pass);
-export const resetPassword = (email: string) => sendPasswordResetEmail(auth, email);
 export const signOut = () => auth.signOut();

@@ -75,15 +75,15 @@ export default function Layout({ children, activeTab, setActiveTab, user, onSign
                   <img src={user.photoURL} className="w-10 h-10 rounded-xl" alt={user.displayName || ''} />
                 ) : (
                   <div className="w-10 h-10 bg-[#1A1A1A] text-white rounded-xl flex items-center justify-center font-bold">
-                    {user.displayName?.charAt(0) || user.email?.charAt(0).toUpperCase() || 'U'}
+                    {user.isAnonymous ? 'ش' : (user.displayName?.charAt(0) || 'U')}
                   </div>
                 )}
                 <div className="overflow-hidden">
                   <p className="text-sm font-bold text-[#1A1A1A] truncate">
-                    {user.displayName || 'مستخدم'}
+                    {user.isAnonymous ? 'شمس' : (user.displayName || 'مستخدم')}
                   </p>
                   <p className="text-[10px] text-[#1A1A1A]/40 truncate">
-                    {user.email || 'بدون بريد'}
+                    {user.isAnonymous ? 'مديرة الأعمال' : (user.email || 'بدون بريد')}
                   </p>
                 </div>
               </div>
