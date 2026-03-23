@@ -4,10 +4,11 @@
  */
 
 import React, { ReactNode } from 'react';
-import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Settings, Heart, Tent } from 'lucide-react';
+import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Settings, Heart, Tent, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
-import { User } from 'firebase/auth';
+import { User, signOut } from 'firebase/auth';
+import { auth } from '../firebase';
 
 interface LayoutProps {
   children: ReactNode;
@@ -80,6 +81,31 @@ export default function Layout({ children, activeTab, setActiveTab, user }: Layo
             </nav>
           </div>
 
+          {/* User Info & Logout */}
+          <div className="mt-auto p-8 border-t border-border space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-muted rounded-xl overflow-hidden border border-border">
+                {user?.photoURL ? (
+                  <img src={user.photoURL} alt={user.displayName || 'User'} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                    <Users size={20} />
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-foreground truncate">{user?.displayName || 'مستخدم'}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{user?.email}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => signOut(auth)}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-all duration-200"
+            >
+              <LogOut size={18} />
+              تسجيل الخروج
+            </button>
+          </div>
         </aside>
 
         {/* Main Content */}

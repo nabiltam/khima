@@ -8,6 +8,7 @@ import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import BookingForm from './components/BookingForm';
 import CustomerDirectory from './components/CustomerDirectory';
+import Login from './components/Login';
 import Modal from './components/Modal';
 import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Trash2, CheckCircle2, AlertCircle, Heart, Star } from 'lucide-react';
 import { Booking, Customer } from './types';
@@ -55,14 +56,7 @@ export default function App() {
 
   // Auth listener
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (!currentUser) {
-        try {
-          await signInAnon();
-        } catch (error) {
-          console.error("Failed to auto-login anonymously", error);
-        }
-      }
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
     });
@@ -253,10 +247,14 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-[#1A1A1A] border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
+  }
+
+  if (!user) {
+    return <Login onLoginSuccess={() => {}} />;
   }
 
   return (
