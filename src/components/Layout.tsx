@@ -94,8 +94,8 @@ export default function Layout({ children, activeTab, setActiveTab, user }: Layo
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-foreground truncate">{user?.isAnonymous ? 'زائر' : (user?.displayName || 'مستخدم')}</p>
-                <p className="text-[10px] text-muted-foreground truncate">{user?.isAnonymous ? 'حساب مؤقت' : user?.email}</p>
+                <p className="text-sm font-bold text-foreground truncate">مديرة أعمالي شمس</p>
+                <p className="text-[10px] text-muted-foreground truncate">نظام الحفظ السحابي نشط</p>
               </div>
             </div>
             <button

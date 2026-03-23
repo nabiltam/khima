@@ -87,8 +87,8 @@ export default function Login({ onLoginSuccess }: LoginProps) {
 
         <div className="bg-card p-10 rounded-[3rem] border border-border shadow-2xl shadow-black/5 space-y-8">
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-foreground">مرحباً بك مجدداً</h2>
-            <p className="text-muted-foreground font-medium">سجل الدخول للوصول إلى حجوزاتك وبياناتك السحابية</p>
+            <h2 className="text-2xl font-bold text-foreground">مرحباً بك</h2>
+            <p className="text-muted-foreground font-medium">اضغط على الزر أدناه للبدء في استخدام التطبيق وحفظ بياناتك</p>
           </div>
 
           {error && (
@@ -96,19 +96,11 @@ export default function Login({ onLoginSuccess }: LoginProps) {
               <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-medium animate-in fade-in slide-in-from-top-2 duration-300">
                 {error}
               </div>
-              <div className="p-4 bg-muted rounded-xl text-xs text-muted-foreground text-right space-y-2">
-                <p className="font-bold text-foreground">لماذا يظهر هذا الخطأ؟</p>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>قد يكون المتصفح يحظر النوافذ المنبثقة.</li>
-                  <li>قد تحتاج إلى تفعيل "تسجيل الدخول بجوجل" في إعدادات Firebase.</li>
-                  <li>جرب استخدام "إعادة التوجيه" أو "الدخول كضيف".</li>
-                </ul>
-              </div>
             </div>
           )}
 
           <button
-            onClick={handleLogin}
+            onClick={handleGuestLogin}
             disabled={loading}
             className="w-full flex items-center justify-center gap-4 px-8 py-5 bg-foreground text-background rounded-2xl font-bold hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100 shadow-xl shadow-foreground/10"
           >
@@ -116,32 +108,10 @@ export default function Login({ onLoginSuccess }: LoginProps) {
               <div className="w-6 h-6 border-2 border-background border-t-transparent rounded-full animate-spin" />
             ) : (
               <>
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-6 h-6" referrerPolicy="no-referrer" />
-                <span>الدخول بواسطة جوجل (نافذة منبثقة)</span>
+                <LogIn size={24} />
+                <span>ابدأ الآن (دخول سريع)</span>
               </>
             )}
-          </button>
-
-          <button
-            onClick={handleRedirectLogin}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-muted text-foreground rounded-2xl font-bold hover:bg-muted/80 active:scale-[0.98] transition-all disabled:opacity-50"
-          >
-            <span>الدخول بواسطة جوجل (إعادة توجيه - للمتصفحات المقيدة)</span>
-          </button>
-
-          <div className="relative flex items-center gap-4 py-2">
-            <div className="flex-1 h-px bg-border" />
-            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">أو</span>
-            <div className="flex-1 h-px bg-border" />
-          </div>
-
-          <button
-            onClick={handleGuestLogin}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-muted text-foreground rounded-2xl font-bold hover:bg-muted/80 active:scale-[0.98] transition-all disabled:opacity-50"
-          >
-            <span>الدخول كضيف (بدون حساب)</span>
           </button>
 
           <div className="pt-4">
