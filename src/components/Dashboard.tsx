@@ -44,10 +44,10 @@ export default function Dashboard({ bookings, pendingReminders, onEditBooking, o
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex flex-col gap-2">
           <h2 className="text-4xl font-bold tracking-tight text-foreground">
-            {user ? `مرحباً بك، ${user.displayName || 'شمس'}` : 'لوحة التحكم'}
+            {user?.isAnonymous ? 'مرحباً بك يا ضيفنا' : (user ? `مرحباً بك، ${user.displayName || 'شمس'}` : 'لوحة التحكم')}
           </h2>
           <p className="text-muted-foreground font-medium">
-            {user?.email === 'tamnabil99@gmail.com' ? 'حفظكِ الله ورعاكِ يا جميلتي، إليكِ حالة الحجوزات اليوم' : 'نظرة عامة على حالة الحجوزات اليوم'}
+            {user?.email === 'tamnabil99@gmail.com' ? 'حفظكِ الله ورعاكِ يا جميلتي، إليكِ حالة الحجوزات اليوم' : (user?.isAnonymous ? 'يمكنك البدء في إضافة الحجوزات، سيتم حفظها مؤقتاً.' : 'نظرة عامة على حالة الحجوزات اليوم')}
           </p>
         </div>
         <div className="w-20 h-20 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20 hidden md:block border border-border">

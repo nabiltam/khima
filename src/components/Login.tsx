@@ -6,7 +6,7 @@
 import React from 'react';
 import { Tent, LogIn } from 'lucide-react';
 import { auth, googleProvider, handleFirestoreError, OperationType } from '../firebase';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithPopup, signInAnonymously, signInWithRedirect } from 'firebase/auth';
 
 interface LoginProps {
   onLoginSuccess: () => void;
@@ -14,15 +14,55 @@ interface LoginProps {
 
 export default function Login({ onLoginSuccess }: LoginProps) {
   const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
   const handleLogin = async () => {
     setLoading(true);
+    setError(null);
     try {
       await signInWithPopup(auth, googleProvider);
       onLoginSuccess();
-    } catch (error) {
-      console.error("Login error:", error);
-      // We don't use handleFirestoreError here as it's Auth, but we can log it
+    } catch (err: any) {
+      console.error("Login error:", err);
+      if (err.code === 'auth/popup-blocked') {
+        setError('تم حظر النافذة المنبثقة. يرجى السماح بالمنبثقات لهذا الموقع أو المحاولة من متصفح آخر.');
+      } else if (err.code === 'auth/cancelled-popup-request') {
+        setError('تم إلغاء عملية تسجيل الدخول.');
+      } else if (err.code === 'auth/internal-error') {
+        setError('حدث خطأ داخلي. يرجى المحاولة مرة أخرى.');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        setError('هذا النطاق غير مصرح به في إعدادات Firebase. يرجى إضافة النطاق الحالي إلى قائمة النطاقات المصرح بها.');
+      } else {
+        setError(`خطأ: ${err.message || 'حدث خطأ غير متوقع'}`);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRedirectLogin = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await signInWithRedirect(auth, googleProvider);
+      // No need for onLoginSuccess here as it will redirect back
+    } catch (err: any) {
+      console.error("Redirect login error:", err);
+      setError(`خطأ: ${err.message || 'حدث خطأ غير متوقع'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGuestLogin = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await signInAnonymously(auth);
+      onLoginSuccess();
+    } catch (err: any) {
+      console.error("Guest login error:", err);
+      setError('فشل الدخول كضيف. يرجى المحاولة لاحقاً.');
     } finally {
       setLoading(false);
     }
@@ -51,6 +91,22 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             <p className="text-muted-foreground font-medium">سجل الدخول للوصول إلى حجوزاتك وبياناتك السحابية</p>
           </div>
 
+          {error && (
+            <div className="space-y-4">
+              <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-medium animate-in fade-in slide-in-from-top-2 duration-300">
+                {error}
+              </div>
+              <div className="p-4 bg-muted rounded-xl text-xs text-muted-foreground text-right space-y-2">
+                <p className="font-bold text-foreground">لماذا يظهر هذا الخطأ؟</p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li>قد يكون المتصفح يحظر النوافذ المنبثقة.</li>
+                  <li>قد تحتاج إلى تفعيل "تسجيل الدخول بجوجل" في إعدادات Firebase.</li>
+                  <li>جرب استخدام "إعادة التوجيه" أو "الدخول كضيف".</li>
+                </ul>
+              </div>
+            </div>
+          )}
+
           <button
             onClick={handleLogin}
             disabled={loading}
@@ -61,9 +117,31 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             ) : (
               <>
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-6 h-6" referrerPolicy="no-referrer" />
-                <span>الدخول بواسطة جوجل</span>
+                <span>الدخول بواسطة جوجل (نافذة منبثقة)</span>
               </>
             )}
+          </button>
+
+          <button
+            onClick={handleRedirectLogin}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-muted text-foreground rounded-2xl font-bold hover:bg-muted/80 active:scale-[0.98] transition-all disabled:opacity-50"
+          >
+            <span>الدخول بواسطة جوجل (إعادة توجيه - للمتصفحات المقيدة)</span>
+          </button>
+
+          <div className="relative flex items-center gap-4 py-2">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">أو</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+
+          <button
+            onClick={handleGuestLogin}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-muted text-foreground rounded-2xl font-bold hover:bg-muted/80 active:scale-[0.98] transition-all disabled:opacity-50"
+          >
+            <span>الدخول كضيف (بدون حساب)</span>
           </button>
 
           <div className="pt-4">

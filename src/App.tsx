@@ -15,7 +15,7 @@ import { Booking, Customer } from './types';
 import { cn } from './lib/utils';
 import { differenceInHours, parseISO, isBefore, addHours } from 'date-fns';
 import { db, auth, signInAnon, handleFirestoreError, OperationType } from './firebase';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { onAuthStateChanged, User, getRedirectResult } from 'firebase/auth';
 import { collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, updateDoc, getDocs } from 'firebase/firestore';
 
 // Mock Data
@@ -56,6 +56,11 @@ export default function App() {
 
   // Auth listener
   useEffect(() => {
+    // Handle redirect result
+    getRedirectResult(auth).catch((error) => {
+      console.error("Redirect result error:", error);
+    });
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
