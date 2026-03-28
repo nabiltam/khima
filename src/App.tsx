@@ -14,6 +14,7 @@ import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Trash2, CheckCircl
 import { Booking, Customer } from './types';
 import { cn } from './lib/utils';
 import { differenceInHours, parseISO, isBefore, addHours } from 'date-fns';
+import { motion, AnimatePresence } from 'motion/react';
 import { db, auth, signInAnon, handleFirestoreError, OperationType } from './firebase';
 import { onAuthStateChanged, User, getRedirectResult } from 'firebase/auth';
 import { collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, updateDoc, getDocs } from 'firebase/firestore';
@@ -542,17 +543,19 @@ export default function App() {
         </div>
       </Modal>
 
-      {showBookingForm && (
-        <BookingForm 
-          booking={editingBooking}
-          customers={customers}
-          onSave={handleSaveBooking}
-          onClose={() => {
-            setShowBookingForm(false);
-            setEditingBooking(null);
-          }}
-        />
-      )}
+      <AnimatePresence>
+        {showBookingForm && (
+          <BookingForm 
+            booking={editingBooking}
+            customers={customers}
+            onSave={handleSaveBooking}
+            onClose={() => {
+              setShowBookingForm(false);
+              setEditingBooking(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Custom Confirmation Modal */}
       <Modal
