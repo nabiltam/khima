@@ -63,7 +63,13 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       onLoginSuccess();
     } catch (err: any) {
       console.error("Guest login error:", err);
-      setError('فشل الدخول كضيف. يرجى المحاولة لاحقاً.');
+      if (err.code === 'auth/unauthorized-domain') {
+        setError(`هذا النطاق غير مصرح به. يرجى إضافة "${window.location.hostname}" إلى قائمة النطاقات المصرح بها في Firebase Console.`);
+      } else if (err.code === 'auth/operation-not-allowed') {
+        setError('تسجيل الدخول كضيف غير مفعل. يرجى تفعيل "Anonymous" في إعدادات Firebase Authentication.');
+      } else {
+        setError(`فشل الدخول كضيف: ${err.message || 'يرجى المحاولة لاحقاً'}`);
+      }
     } finally {
       setLoading(false);
     }
