@@ -166,7 +166,7 @@ export default function Challenge({ data, onUpdate, onReset }: ChallengeProps) {
   };
 
   return (
-    <div className="space-y-10 relative">
+    <div className="space-y-6 lg:space-y-10 relative">
       {/* Background Music */}
       <audio 
         ref={audioRef}
@@ -216,13 +216,13 @@ export default function Challenge({ data, onUpdate, onReset }: ChallengeProps) {
       </AnimatePresence>
 
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 relative z-10">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-8 relative z-10">
         <div className="space-y-2">
           <div className="flex items-center gap-3 text-primary">
-            <Target size={32} className="animate-pulse" />
-            <h2 className="text-4xl font-black tracking-tight text-foreground">تحدي الـ ٥٠ ألف</h2>
+            <Target size={28} className="lg:size-8 animate-pulse" />
+            <h2 className="text-3xl lg:text-4xl font-black tracking-tight text-foreground">تحدي الـ ٥٠ ألف</h2>
           </div>
-          <p className="text-muted-foreground font-bold text-lg">نتحدى تكاليف الزواج معاً.. خطوة بخطوة نحو الهدف</p>
+          <p className="text-muted-foreground font-bold text-base lg:text-lg">نتحدى تكاليف الزواج معاً.. خطوة بخطوة نحو الهدف</p>
         </div>
         <div className="flex items-center gap-4">
           {/* Play/Pause Toggle */}
@@ -251,22 +251,22 @@ export default function Challenge({ data, onUpdate, onReset }: ChallengeProps) {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="lg:col-span-2 bg-white p-10 rounded-[3.5rem] border border-border shadow-2xl relative overflow-hidden group"
+          className="lg:col-span-2 bg-white p-6 lg:p-10 rounded-3xl lg:rounded-[3.5rem] border border-border shadow-2xl relative overflow-hidden group"
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32 group-hover:bg-primary/10 transition-colors" />
           
-          <div className="relative z-10 space-y-10">
-            <div className="flex items-center justify-between">
+          <div className="relative z-10 space-y-8 lg:space-y-10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1">
-                <p className="text-sm font-black text-primary uppercase tracking-[0.2em]">المبلغ المجموع</p>
+                <p className="text-[10px] lg:text-sm font-black text-primary uppercase tracking-[0.2em]">المبلغ المجموع</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-6xl font-black text-foreground tracking-tighter">{current.toLocaleString()}</span>
-                  <span className="text-xl font-black text-muted-foreground">دج</span>
+                  <span className="text-4xl lg:text-6xl font-black text-foreground tracking-tighter">{current.toLocaleString()}</span>
+                  <span className="text-lg lg:text-xl font-black text-muted-foreground">دج</span>
                 </div>
               </div>
-              <div className="text-right space-y-1">
-                <p className="text-sm font-black text-muted-foreground uppercase tracking-[0.2em]">الهدف النهائي</p>
-                <p className="text-2xl font-black text-foreground opacity-60 tracking-tight">٥٠,٠٠٠ دج</p>
+              <div className="sm:text-right space-y-1">
+                <p className="text-[10px] lg:text-sm font-black text-muted-foreground uppercase tracking-[0.2em]">الهدف النهائي</p>
+                <p className="text-xl lg:text-2xl font-black text-foreground opacity-60 tracking-tight">٥٠,٠٠٠ دج</p>
               </div>
             </div>
 
@@ -288,26 +288,26 @@ export default function Challenge({ data, onUpdate, onReset }: ChallengeProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 pt-4">
-              <div className="p-6 bg-primary/5 rounded-3xl border border-primary/10 flex items-center gap-4">
-                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-primary shadow-lg shadow-primary/10">
-                  <TrendingUp size={24} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6 pt-4">
+              <div className="p-4 lg:p-6 bg-primary/5 rounded-2xl lg:rounded-3xl border border-primary/10 flex items-center gap-4">
+                <div className="w-10 h-10 lg:w-12 lg:h-12 bg-white rounded-xl lg:rounded-2xl flex items-center justify-center text-primary shadow-lg shadow-primary/10">
+                  <TrendingUp size={20} className="lg:size-6" />
                 </div>
                 <div>
                   <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">معدل الإنجاز</p>
-                  <p className="text-lg font-black text-foreground">ممتاز جداً</p>
+                  <p className="text-base lg:text-lg font-black text-foreground">ممتاز جداً</p>
                 </div>
               </div>
               <button 
                 onClick={() => setShowResetConfirm(true)}
-                className="p-6 bg-red-500/5 rounded-3xl border border-red-500/10 flex items-center gap-4 hover:bg-red-500/10 transition-colors text-left"
+                className="p-4 lg:p-6 bg-red-500/5 rounded-2xl lg:rounded-3xl border border-red-500/10 flex items-center gap-4 hover:bg-red-500/10 transition-colors text-right"
               >
-                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-red-500 shadow-lg shadow-red-500/10">
-                  <Sparkles size={24} />
+                <div className="w-10 h-10 lg:w-12 lg:h-12 bg-white rounded-xl lg:rounded-2xl flex items-center justify-center text-red-500 shadow-lg shadow-red-500/10">
+                  <Sparkles size={20} className="lg:size-6" />
                 </div>
                 <div>
                   <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">تعديل المجموع</p>
-                  <p className="text-lg font-black text-red-500">تصفير العداد</p>
+                  <p className="text-base lg:text-lg font-black text-red-500">تصفير العداد</p>
                 </div>
               </button>
             </div>
@@ -319,20 +319,20 @@ export default function Challenge({ data, onUpdate, onReset }: ChallengeProps) {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="bg-foreground text-background p-10 rounded-[3.5rem] shadow-2xl flex flex-col justify-between relative overflow-hidden group"
+          className="bg-foreground text-background p-6 lg:p-10 rounded-3xl lg:rounded-[3.5rem] shadow-2xl flex flex-col justify-between relative overflow-hidden group"
         >
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/20 to-transparent opacity-50" />
-          <div className="relative z-10 space-y-8">
-            <div className="w-16 h-16 bg-white/10 rounded-[1.5rem] flex items-center justify-center backdrop-blur-xl border border-white/10">
-              <Clock size={32} className="text-primary" />
+          <div className="relative z-10 space-y-6 lg:space-y-8">
+            <div className="w-12 h-12 lg:w-16 lg:h-16 bg-white/10 rounded-xl lg:rounded-[1.5rem] flex items-center justify-center backdrop-blur-xl border border-white/10">
+              <Clock size={24} className="lg:size-8 text-primary" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-3xl font-black tracking-tight">العد التنازلي</h3>
-              <p className="text-background/60 font-bold">حتى نهاية التحدي (أكتوبر ٢٠٢٦)</p>
+              <h3 className="text-2xl lg:text-3xl font-black tracking-tight">العد التنازلي</h3>
+              <p className="text-background/60 font-bold text-sm lg:text-base">حتى نهاية التحدي (أكتوبر ٢٠٢٦)</p>
             </div>
             <div className="space-y-1">
-              <span className="text-8xl font-black tracking-tighter text-primary">{daysLeft}</span>
-              <p className="text-2xl font-black tracking-widest uppercase opacity-80">يوم متبقي</p>
+              <span className="text-6xl lg:text-8xl font-black tracking-tighter text-primary">{daysLeft}</span>
+              <p className="text-xl lg:text-2xl font-black tracking-widest uppercase opacity-80">يوم متبقي</p>
             </div>
           </div>
           <div className="relative z-10 pt-8">
@@ -349,26 +349,26 @@ export default function Challenge({ data, onUpdate, onReset }: ChallengeProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="bg-white p-10 rounded-[3.5rem] border border-border shadow-2xl"
+        className="bg-white p-6 lg:p-10 rounded-3xl lg:rounded-[3.5rem] border border-border shadow-2xl"
       >
-        <form onSubmit={handleAdd} className="flex flex-col lg:flex-row items-center gap-8">
+        <form onSubmit={handleAdd} className="flex flex-col lg:flex-row items-center gap-6 lg:gap-8">
           <div className="flex-1 space-y-2 w-full">
-            <label className="text-sm font-black text-muted-foreground uppercase tracking-widest px-2">إضافة مبلغ جديد للتحدي</label>
+            <label className="text-xs lg:text-sm font-black text-muted-foreground uppercase tracking-widest px-2">إضافة مبلغ جديد للتحدي</label>
             <div className="relative">
               <input 
                 type="number"
                 value={addAmount}
                 onChange={(e) => setAddAmount(e.target.value)}
                 placeholder="أدخل المبلغ هنا..."
-                className="w-full bg-muted/50 border-2 border-transparent focus:border-primary focus:bg-white rounded-3xl px-8 py-6 text-2xl font-black transition-all outline-none"
+                className="w-full bg-muted/50 border-2 border-transparent focus:border-primary focus:bg-white rounded-2xl lg:rounded-3xl px-6 lg:px-8 py-4 lg:py-6 text-xl lg:text-2xl font-black transition-all outline-none"
               />
-              <div className="absolute left-8 top-1/2 -translate-y-1/2 text-muted-foreground font-black">دج</div>
+              <div className="absolute left-6 lg:left-8 top-1/2 -translate-y-1/2 text-muted-foreground font-black">دج</div>
             </div>
           </div>
           <button 
             type="submit"
             disabled={loading || !addAmount}
-            className="w-full lg:w-auto px-12 py-6 bg-primary text-primary-foreground rounded-3xl font-black text-xl shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50"
+            className="w-full lg:w-auto px-10 lg:px-12 py-4 lg:py-6 bg-primary text-primary-foreground rounded-2xl lg:rounded-3xl font-black text-lg lg:text-xl shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50"
           >
             {loading ? (
               <div className="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin" />
