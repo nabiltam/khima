@@ -8,10 +8,11 @@ import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import BookingForm from './components/BookingForm';
 import CustomerDirectory from './components/CustomerDirectory';
+import Challenge from './components/Challenge';
 import Login from './components/Login';
 import Modal from './components/Modal';
-import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Trash2, CheckCircle2, AlertCircle, Heart, Star } from 'lucide-react';
-import { Booking, Customer } from './types';
+import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Trash2, CheckCircle2, AlertCircle, Heart, Star, Target } from 'lucide-react';
+import { Booking, Customer, ChallengeData } from './types';
 import { cn } from './lib/utils';
 import { differenceInHours, parseISO, isBefore, addHours } from 'date-fns';
 import { motion, AnimatePresence } from 'motion/react';
@@ -54,6 +55,7 @@ export default function App() {
   const [customerToDelete, setCustomerToDelete] = useState<string | null>(null);
   const [showMassDeleteConfirm, setShowMassDeleteConfirm] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [challengeData, setChallengeData] = useState<ChallengeData | null>(null);
 
   // Auth listener
   useEffect(() => {
@@ -85,9 +87,27 @@ export default function App() {
       setCustomers(data);
     }, (error) => handleFirestoreError(error, OperationType.LIST, 'customers'));
 
+    const unsubscribeChallenge = onSnapshot(doc(db, 'challenges', 'marriage_challenge'), (snapshot) => {
+      if (snapshot.exists()) {
+        setChallengeData({ id: snapshot.id, ...snapshot.data() } as ChallengeData);
+      } else {
+        const initialChallenge: ChallengeData = {
+          id: 'marriage_challenge',
+          targetAmount: 50000000,
+          currentAmount: 0,
+          startDate: new Date().toISOString(),
+          endDate: new Date(2026, 9, 1).toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        setDoc(doc(db, 'challenges', 'marriage_challenge'), initialChallenge)
+          .catch(err => console.error("Error initializing challenge:", err));
+      }
+    }, (error) => handleFirestoreError(error, OperationType.GET, 'challenges/marriage_challenge'));
+
     return () => {
       unsubscribeBookings();
       unsubscribeCustomers();
+      unsubscribeChallenge();
     };
   }, [user]);
 
@@ -215,6 +235,31 @@ export default function App() {
       } catch (error) {
         handleFirestoreError(error, OperationType.DELETE, `bookings/${bookingToDelete}`);
       }
+    }
+  };
+
+  const handleUpdateChallenge = async (amount: number) => {
+    if (!challengeData) return;
+    const challengeRef = doc(db, 'challenges', 'marriage_challenge');
+    try {
+      await updateDoc(challengeRef, {
+        currentAmount: (challengeData.currentAmount || 0) + amount,
+        updatedAt: new Date().toISOString()
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'challenges/marriage_challenge');
+    }
+  };
+
+  const handleResetChallenge = async () => {
+    const challengeRef = doc(db, 'challenges', 'marriage_challenge');
+    try {
+      await updateDoc(challengeRef, {
+        currentAmount: 0,
+        updatedAt: new Date().toISOString()
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'challenges/marriage_challenge');
     }
   };
 
@@ -416,6 +461,14 @@ export default function App() {
             ))}
           </div>
         </div>
+      )}
+
+      {activeTab === 'challenge' && (
+        <Challenge 
+          data={challengeData}
+          onUpdate={handleUpdateChallenge}
+          onReset={handleResetChallenge}
+        />
       )}
 
       {activeTab === 'settings' && (

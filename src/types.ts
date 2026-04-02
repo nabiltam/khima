@@ -38,3 +38,12 @@ export interface DashboardStats {
   totalRevenue: number;
   pendingPayments: number;
 }
+
+export interface ChallengeData {
+  id: string;
+  targetAmount: number;
+  currentAmount: number;
+  startDate: string;
+  endDate: string;
+  updatedAt: string;
+}

@@ -4,7 +4,7 @@
  */
 
 import React, { ReactNode } from 'react';
-import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Settings, Heart, Tent, LogOut, Cloud, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Users, PlusCircle, Search, Menu, X, Settings, Heart, Tent, LogOut, Cloud, ShieldCheck, Target } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { User, signOut } from 'firebase/auth';
@@ -24,6 +24,7 @@ export default function Layout({ children, activeTab, setActiveTab, user }: Layo
     { id: 'dashboard', label: 'لوحة التحكم', icon: LayoutDashboard },
     { id: 'customers', label: 'سجل الزبائن', icon: Users },
     { id: 'bookings', label: 'الحجوزات', icon: Search },
+    { id: 'challenge', label: 'التحدي', icon: Target },
     { id: 'settings', label: 'الإعدادات', icon: Settings },
     { id: 'shams', label: 'شمس', icon: Heart },
   ];

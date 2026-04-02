@@ -36,6 +36,20 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "tentId", "tentSize", "location", "customerId", "customerName", "customerPhone", "totalPrice", "deposit", "remaining", "startDate", "endDate", "pickupTime", "status", "createdAt"]
+    },
+    "Challenge": {
+      "title": "Challenge",
+      "description": "A financial challenge to reach a target amount.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "targetAmount": { "type": "number" },
+        "currentAmount": { "type": "number" },
+        "startDate": { "type": "string", "format": "date-time" },
+        "endDate": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "targetAmount", "currentAmount", "startDate", "endDate", "updatedAt"]
     }
   },
   "firestore": {
@@ -46,6 +60,10 @@
     "/bookings": {
       "schema": "Booking",
       "description": "Collection of bookings."
+    },
+    "/challenges": {
+      "schema": "Challenge",
+      "description": "Collection of challenges."
     }
   }
 }
