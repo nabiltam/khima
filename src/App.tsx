@@ -88,8 +88,40 @@ export default function App() {
     }, (error) => handleFirestoreError(error, OperationType.LIST, 'customers'));
 
     const unsubscribeChallenge = onSnapshot(doc(db, 'challenges', 'marriage_challenge'), (snapshot) => {
+      const defaultAppliances = [
+        { id: 'tv', name: 'تلفاز', bought: false },
+        { id: 'ac', name: 'مكيف', bought: false },
+        { id: 'wm', name: 'غسالة', bought: false },
+        { id: 'fridge', name: 'فريجدار', bought: false },
+        { id: 'heater', name: 'سخان', bought: false },
+        { id: 'oven', name: 'فور', bought: false },
+        { id: 'microwave', name: 'ميكروويف', bought: false },
+        { id: 'vacuum', name: 'مكنسة', bought: false },
+        { id: 'iron', name: 'مكواة', bought: false },
+        { id: 'blender', name: 'خلاط', bought: false },
+        { id: 'dishwasher', name: 'غسالة أواني', bought: false },
+        { id: 'stove', name: 'طباخة', bought: false },
+        { id: 'hood', name: 'شفاط مطبخ', bought: false },
+        { id: 'coffee', name: 'محضرة قهوة', bought: false },
+        { id: 'mixer', name: 'عجانة', bought: false }
+      ];
+
       if (snapshot.exists()) {
-        setChallengeData({ id: snapshot.id, ...snapshot.data() } as ChallengeData);
+        const data = snapshot.data() as ChallengeData;
+        // Migration: Add missing appliances
+        if (!data.appliances || data.appliances.length < defaultAppliances.length) {
+          const existingIds = new Set(data.appliances?.map(a => a.id) || []);
+          const missingAppliances = defaultAppliances.filter(a => !existingIds.has(a.id));
+          
+          if (missingAppliances.length > 0) {
+            const updatedAppliances = [...(data.appliances || []), ...missingAppliances];
+            updateDoc(doc(db, 'challenges', 'marriage_challenge'), {
+              appliances: updatedAppliances,
+              updatedAt: new Date().toISOString()
+            }).catch(err => console.error("Error migrating appliances:", err));
+          }
+        }
+        setChallengeData({ id: snapshot.id, ...data } as ChallengeData);
       } else {
         const initialChallenge: ChallengeData = {
           id: 'marriage_challenge',
@@ -97,7 +129,8 @@ export default function App() {
           currentAmount: 0,
           startDate: new Date().toISOString(),
           endDate: new Date(2026, 9, 1).toISOString(),
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
+          appliances: defaultAppliances
         };
         setDoc(doc(db, 'challenges', 'marriage_challenge'), initialChallenge)
           .catch(err => console.error("Error initializing challenge:", err));
@@ -256,6 +289,39 @@ export default function App() {
     try {
       await updateDoc(challengeRef, {
         currentAmount: 0,
+        updatedAt: new Date().toISOString(),
+        appliances: [
+          { id: 'tv', name: 'تلفاز', bought: false },
+          { id: 'ac', name: 'مكيف', bought: false },
+          { id: 'wm', name: 'غسالة', bought: false },
+          { id: 'fridge', name: 'فريجدار', bought: false },
+          { id: 'heater', name: 'سخان', bought: false },
+          { id: 'oven', name: 'فور', bought: false },
+          { id: 'microwave', name: 'ميكروويف', bought: false },
+          { id: 'vacuum', name: 'مكنسة', bought: false },
+          { id: 'iron', name: 'مكواة', bought: false },
+          { id: 'blender', name: 'خلاط', bought: false },
+          { id: 'dishwasher', name: 'غسالة أواني', bought: false },
+          { id: 'stove', name: 'طباخة', bought: false },
+          { id: 'hood', name: 'شفاط مطبخ', bought: false },
+          { id: 'coffee', name: 'محضرة قهوة', bought: false },
+          { id: 'mixer', name: 'عجانة', bought: false }
+        ]
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'challenges/marriage_challenge');
+    }
+  };
+
+  const handleToggleAppliance = async (applianceId: string) => {
+    if (!challengeData || !challengeData.appliances) return;
+    const challengeRef = doc(db, 'challenges', 'marriage_challenge');
+    const updatedAppliances = challengeData.appliances.map(a => 
+      a.id === applianceId ? { ...a, bought: !a.bought } : a
+    );
+    try {
+      await updateDoc(challengeRef, {
+        appliances: updatedAppliances,
         updatedAt: new Date().toISOString()
       });
     } catch (error) {
@@ -468,6 +534,7 @@ export default function App() {
           data={challengeData}
           onUpdate={handleUpdateChallenge}
           onReset={handleResetChallenge}
+          onToggleAppliance={handleToggleAppliance}
         />
       )}
 

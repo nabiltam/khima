@@ -39,6 +39,12 @@ export interface DashboardStats {
   pendingPayments: number;
 }
 
+export interface Appliance {
+  id: string;
+  name: string;
+  bought: boolean;
+}
+
 export interface ChallengeData {
   id: string;
   targetAmount: number;
@@ -46,4 +52,5 @@ export interface ChallengeData {
   startDate: string;
   endDate: string;
   updatedAt: string;
+  appliances?: Appliance[];
 }

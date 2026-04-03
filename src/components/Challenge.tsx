@@ -4,11 +4,12 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Target, Calendar, Clock, TrendingUp, Plus, Sparkles, Heart } from 'lucide-react';
+import { Target, Calendar, Clock, TrendingUp, Plus, Sparkles, Heart, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { format, differenceInDays } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { ChallengeData } from '../types';
+import { cn } from '../lib/utils';
 
 interface HeartEffect {
   id: number;
@@ -29,6 +30,7 @@ interface ChallengeProps {
   data: ChallengeData | null;
   onUpdate: (amount: number) => Promise<void>;
   onReset: () => Promise<void>;
+  onToggleAppliance: (id: string) => Promise<void>;
 }
 
 const PRAYERS = [
@@ -44,7 +46,7 @@ const PRAYERS = [
   "اللهم ارزقنا البركة"
 ];
 
-export default function Challenge({ data, onUpdate, onReset }: ChallengeProps) {
+export default function Challenge({ data, onUpdate, onReset, onToggleAppliance }: ChallengeProps) {
   const [addAmount, setAddAmount] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -332,6 +334,90 @@ export default function Challenge({ data, onUpdate, onReset }: ChallengeProps) {
           </button>
         </form>
       </motion.div>
+
+      {/* Home Appliances Section */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="bg-white p-6 lg:p-10 rounded-3xl lg:rounded-[3.5rem] border border-border shadow-2xl"
+      >
+        <div className="space-y-6 lg:space-y-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 text-primary">
+                <Sparkles size={28} className="lg:size-8" />
+                <h3 className="text-2xl lg:text-3xl font-black tracking-tight text-foreground">تحدي أجهزة البيت</h3>
+              </div>
+              <p className="text-muted-foreground font-bold text-sm lg:text-base">قائمة الأجهزة الأساسية التي نحتاجها لمنزلنا السعيد</p>
+            </div>
+            {data?.appliances && (
+              <div className="bg-primary/10 px-6 py-3 rounded-2xl border border-primary/20">
+                <p className="text-xs font-black text-primary uppercase tracking-widest mb-1">نسبة الإنجاز</p>
+                <p className="text-xl font-black text-foreground">
+                  {data.appliances.filter(a => a.bought).length} / {data.appliances.length}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {data?.appliances && (
+            <div className="space-y-2">
+              <div className="h-3 bg-muted rounded-full overflow-hidden border border-border shadow-inner">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(data.appliances.filter(a => a.bought).length / data.appliances.length) * 100}%` }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  className="h-full bg-gradient-to-r from-primary to-primary/60"
+                />
+              </div>
+              <p className="text-[10px] font-black text-muted-foreground text-center uppercase tracking-widest">
+                تم شراء {data.appliances.filter(a => a.bought).length} من أصل {data.appliances.length} أجهزة
+              </p>
+            </div>
+          )}
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+            {data?.appliances?.map((appliance) => (
+              <button
+                key={appliance.id}
+                onClick={() => onToggleAppliance(appliance.id)}
+                className={cn(
+                  "p-6 rounded-3xl border-2 transition-all flex items-center justify-between group",
+                  appliance.bought 
+                    ? "bg-primary/5 border-primary shadow-lg shadow-primary/10" 
+                    : "bg-muted/30 border-transparent hover:border-primary/30"
+                )}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={cn(
+                    "w-12 h-12 rounded-2xl flex items-center justify-center transition-colors",
+                    appliance.bought ? "bg-primary text-white" : "bg-white text-muted-foreground group-hover:text-primary"
+                  )}>
+                    <CheckCircle2 size={24} className={cn(appliance.bought && "animate-bounce")} />
+                  </div>
+                  <span className={cn(
+                    "text-lg lg:text-xl font-black",
+                    appliance.bought ? "text-foreground" : "text-muted-foreground"
+                  )}>
+                    {appliance.name}
+                  </span>
+                </div>
+                {appliance.bought && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="bg-primary/10 px-3 py-1 rounded-full"
+                  >
+                    <span className="text-xs font-black text-primary">تم الشراء</span>
+                  </motion.div>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+
       {/* Reset Confirmation Modal */}
       {showResetConfirm && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
