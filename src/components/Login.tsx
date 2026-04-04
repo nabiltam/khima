@@ -147,24 +147,42 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             )}
           </AnimatePresence>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleLogin}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-4 px-10 py-6 bg-primary text-primary-foreground rounded-[2rem] font-black text-xl shadow-2xl shadow-primary/20 hover:shadow-primary/40 transition-all disabled:opacity-50 relative group overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+              {loading ? (
+                <div className="w-8 h-8 border-4 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  <LogIn size={28} />
+                  <span>دخول المسؤول (Google)</span>
+                </>
+              )}
+            </motion.button>
+
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleGuestLogin}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-4 px-10 py-6 bg-foreground text-background rounded-[2rem] font-black text-xl shadow-2xl shadow-foreground/20 hover:shadow-foreground/40 transition-all disabled:opacity-50 relative group overflow-hidden"
+              className="w-full flex items-center justify-center gap-4 px-10 py-5 bg-foreground text-background rounded-[2rem] font-black text-lg shadow-xl shadow-foreground/10 hover:shadow-foreground/20 transition-all disabled:opacity-50 relative group overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
               {loading ? (
-                <div className="w-8 h-8 border-4 border-background border-t-transparent rounded-full animate-spin" />
+                <div className="w-6 h-6 border-4 border-background border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
-                  <LogIn size={28} />
-                  <span>ابدأ الآن (دخول سريع)</span>
+                  <LogIn size={22} />
+                  <span>دخول سريع (زائر)</span>
                 </>
               )}
             </motion.button>
+          </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center justify-center gap-2 py-4 bg-muted/50 rounded-2xl border border-border/50">

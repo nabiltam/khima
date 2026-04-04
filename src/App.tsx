@@ -16,6 +16,7 @@ import { Booking, Customer, ChallengeData } from './types';
 import { cn } from './lib/utils';
 import { differenceInHours, parseISO, isBefore, addHours } from 'date-fns';
 import { motion, AnimatePresence } from 'motion/react';
+import { Toaster, toast } from 'react-hot-toast';
 import { db, auth, signInAnon, handleFirestoreError, OperationType } from './firebase';
 import { onAuthStateChanged, User, getRedirectResult } from 'firebase/auth';
 import { collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, updateDoc, getDocs } from 'firebase/firestore';
@@ -262,10 +263,13 @@ export default function App() {
 
   const confirmDelete = async () => {
     if (bookingToDelete) {
+      const loadingToast = toast.loading('جاري حذف الحجز...');
       try {
         await deleteDoc(doc(db, 'bookings', bookingToDelete));
         setBookingToDelete(null);
+        toast.success('تم حذف الحجز بنجاح', { id: loadingToast });
       } catch (error) {
+        toast.error('فشل الحذف. تأكد من صلاحياتك.', { id: loadingToast });
         handleFirestoreError(error, OperationType.DELETE, `bookings/${bookingToDelete}`);
       }
     }
@@ -335,10 +339,13 @@ export default function App() {
 
   const confirmDeleteCustomer = async () => {
     if (customerToDelete) {
+      const loadingToast = toast.loading('جاري حذف الزبون...');
       try {
         await deleteDoc(doc(db, 'customers', customerToDelete));
         setCustomerToDelete(null);
+        toast.success('تم حذف الزبون بنجاح', { id: loadingToast });
       } catch (error) {
+        toast.error('فشل الحذف. تأكد من صلاحياتك.', { id: loadingToast });
         handleFirestoreError(error, OperationType.DELETE, `customers/${customerToDelete}`);
       }
     }
@@ -762,6 +769,7 @@ export default function App() {
           </div>
         </div>
       </Modal>
+      <Toaster position="top-center" />
     </Layout>
   );
 }
