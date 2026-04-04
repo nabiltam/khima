@@ -681,27 +681,40 @@ export default function App() {
       <Modal
         isOpen={!!bookingToDelete}
         onClose={() => setBookingToDelete(null)}
-        title="تأكيد الحذف"
+        title="تأكيد حذف الحجز"
       >
-        <div className="space-y-6 text-center">
-          <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
-            <AlertCircle size={32} />
+        <div className="space-y-8 text-center p-4">
+          <div className="w-24 h-24 bg-red-100 text-red-600 rounded-[2rem] flex items-center justify-center mx-auto shadow-xl shadow-red-500/10 animate-pulse">
+            <Trash2 size={48} />
           </div>
-          <p className="text-[#1A1A1A]/60 font-medium">
-            هل أنت متأكد من رغبتك في حذف هذا الحجز؟ لا يمكن التراجع عن هذه العملية.
-          </p>
-          <div className="flex gap-3">
+          
+          <div className="space-y-4">
+            <h3 className="text-2xl font-black text-[#1A1A1A]">هل أنت متأكد تماماً؟</h3>
+            <div className="bg-red-50 p-6 rounded-3xl border border-red-100">
+              <p className="text-red-800 font-bold leading-relaxed">
+                سيتم حذف هذا الحجز نهائياً من النظام. سيؤدي هذا إلى:
+              </p>
+              <ul className="text-red-700/80 text-sm font-bold mt-4 space-y-2 text-right list-disc list-inside">
+                <li>إلغاء حجز الخيمة في هذا التاريخ</li>
+                <li>حذف سجل المدفوعات الخاص بهذا الحجز</li>
+                <li>لا يمكن استعادة هذه البيانات بعد الحذف</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4">
             <button 
               onClick={() => setBookingToDelete(null)}
-              className="flex-1 py-4 bg-[#1A1A1A]/5 text-[#1A1A1A] rounded-2xl font-bold hover:bg-[#1A1A1A]/10 transition-all"
+              className="flex-1 py-5 bg-[#1A1A1A]/5 text-[#1A1A1A] rounded-2xl font-black hover:bg-[#1A1A1A]/10 transition-all active:scale-95"
             >
-              إلغاء
+              تراجع (إلغاء)
             </button>
             <button 
               onClick={confirmDelete}
-              className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-bold shadow-lg shadow-red-500/20 hover:bg-red-600 transition-all"
+              className="flex-1 py-5 bg-red-500 text-white rounded-2xl font-black shadow-2xl shadow-red-500/30 hover:bg-red-600 transition-all active:scale-95 flex items-center justify-center gap-2"
             >
-              حذف
+              <Trash2 size={20} />
+              تأكيد الحذف النهائي
             </button>
           </div>
         </div>
@@ -711,27 +724,40 @@ export default function App() {
       <Modal
         isOpen={!!customerToDelete}
         onClose={() => setCustomerToDelete(null)}
-        title="حذف الزبون"
+        title="تأكيد حذف الزبون"
       >
-        <div className="space-y-6 text-center">
-          <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
-            <AlertCircle size={32} />
+        <div className="space-y-8 text-center p-4">
+          <div className="w-24 h-24 bg-red-100 text-red-600 rounded-[2rem] flex items-center justify-center mx-auto shadow-xl shadow-red-500/10">
+            <Users size={48} />
           </div>
-          <p className="text-[#1A1A1A]/60 font-medium">
-            هل أنت متأكد من رغبتك في حذف هذا الزبون؟ سيتم حذف بياناته من السجل فقط (الحجوزات ستبقى موجودة).
-          </p>
-          <div className="flex gap-3">
+          
+          <div className="space-y-4">
+            <h3 className="text-2xl font-black text-[#1A1A1A]">حذف ملف الزبون</h3>
+            <div className="bg-amber-50 p-6 rounded-3xl border border-amber-100">
+              <p className="text-amber-800 font-bold leading-relaxed">
+                انتباه: سيتم حذف بيانات الاتصال الخاصة بالزبون.
+              </p>
+              <ul className="text-amber-700/80 text-sm font-bold mt-4 space-y-2 text-right list-disc list-inside">
+                <li>ستبقى الحجوزات السابقة موجودة في السجل</li>
+                <li>لن يكون لهذا الزبون ملف شخصي في الدليل</li>
+                <li>ستحتاج لإعادة إدخال بياناته في حال الحجز مستقبلاً</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4">
             <button 
               onClick={() => setCustomerToDelete(null)}
-              className="flex-1 py-4 bg-[#1A1A1A]/5 text-[#1A1A1A] rounded-2xl font-bold hover:bg-[#1A1A1A]/10 transition-all"
+              className="flex-1 py-5 bg-[#1A1A1A]/5 text-[#1A1A1A] rounded-2xl font-black hover:bg-[#1A1A1A]/10 transition-all active:scale-95"
             >
               إلغاء
             </button>
             <button 
               onClick={confirmDeleteCustomer}
-              className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-bold shadow-lg shadow-red-500/20 hover:bg-red-600 transition-all"
+              className="flex-1 py-5 bg-red-500 text-white rounded-2xl font-black shadow-2xl shadow-red-500/30 hover:bg-red-600 transition-all active:scale-95 flex items-center justify-center gap-2"
             >
-              حذف
+              <Trash2 size={20} />
+              حذف الزبون
             </button>
           </div>
         </div>
