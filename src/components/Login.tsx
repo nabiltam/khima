@@ -194,7 +194,6 @@ export default function Login({ onLoginSuccess }: LoginProps) {
                 <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">أمان عالي</span>
               </div>
             </div>
-          </div>
 
           <div className="pt-4">
             <p className="text-[11px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-60">

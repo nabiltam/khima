@@ -118,21 +118,21 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && isValidCustomer(request.resource.data);
       allow update: if isAuthenticated() && isValidCustomer(request.resource.data);
-      allow delete: if isAdmin();
+      allow delete: if isAuthenticated();
     }
 
     match /bookings/{bookingId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && isValidBooking(request.resource.data);
       allow update: if isAuthenticated() && isValidBooking(request.resource.data);
-      allow delete: if isAdmin();
+      allow delete: if isAuthenticated();
     }
 
     match /challenges/{challengeId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && isValidChallenge(request.resource.data);
       allow update: if isAuthenticated() && isValidChallenge(request.resource.data);
-      allow delete: if isAdmin();
+      allow delete: if isAuthenticated();
     }
 
     // Default deny
